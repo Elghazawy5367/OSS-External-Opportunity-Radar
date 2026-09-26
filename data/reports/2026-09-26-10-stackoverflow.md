@@ -1,9 +1,12 @@
 # RADAR REPORT — stackoverflow — 2026-09-26 10:00
 
-run: 2026-09-26T10:03:28.797Z · keyword signals: 0 · trending: 14 · new: 0 · recurring: 5 · previous stackoverflow reports: 2
+run: 2026-09-26T10:14:53.203Z · keyword signals: 2 · trending: 14 · new: 2 · recurring: 5 · previous stackoverflow reports: 2
 
 ## NEW SIGNALS
-- none this run
+- unanswered | creator-platforms | "X-Twilio-Signature validation fails for TwiML App webhook (Voice JS SDK client call, custom params) — verified URL/token/params are all correct" | 2026-09-22 | views: 83 · score: -4 · answers: 0 | https://stackoverflow.com/questions/80004925/x-twilio-signature-validation-fails-for-twiml-app-webhook-voice-js-sdk-client-c
+  context: tags: python, twilio, webhooks, hmac · accepted answer: no · last activity: 2026-09-22
+- unanswered | oss-sustainability | "How can an MCP client commit to GitHub without a long-lived PAT?" | 2026-09-01 | views: 129 · score: -2 · answers: 2 | https://stackoverflow.com/questions/80000028/how-can-an-mcp-client-commit-to-github-without-a-long-lived-pat
+  context: tags: github, oauth, azure-static-web-app, model-context-protocol, github-app · accepted answer: no · last activity: 2026-09-11
 
 ## TRENDING (velocity signals — from trending pass, not keyword match)
 - hot | trending:llm | "How can I reduce LLM token usage for Text-to-SQL without sending the entire database schema?" | 2026-09-25 | views: 55 · score: -4 · answers: 0 | https://stackoverflow.com/questions/80005909/how-can-i-reduce-llm-token-usage-for-text-to-sql-without-sending-the-entire-data
@@ -44,7 +47,9 @@ run: 2026-09-26T10:03:28.797Z · keyword signals: 0 · trending: 14 · new: 0 ·
 
 ## CHANGES SINCE LAST REPORT
 - baseline: 2026-09-24 19:00
-- new: 9
+- new: 11
+  - https://stackoverflow.com/questions/80004925/x-twilio-signature-validation-fails-for-twiml-app-webhook-voice-js-sdk-client-c
+  - https://stackoverflow.com/questions/80000028/how-can-an-mcp-client-commit-to-github-without-a-long-lived-pat
   - https://stackoverflow.com/questions/80005909/how-can-i-reduce-llm-token-usage-for-text-to-sql-without-sending-the-entire-data
   - https://stackoverflow.com/questions/71167981/case-expression-works-in-saved-search-but-doesnt-work-in-workflow
   - https://stackoverflow.com/questions/9411714/compiling-vlc-source-code-on-windows-visual-studio
@@ -71,10 +76,10 @@ run: 2026-09-26T10:03:28.797Z · keyword signals: 0 · trending: 14 · new: 0 ·
   - https://stackoverflow.com/questions/24512124/is-there-a-tool-to-generate-simple-contributors-file-from-a-github-repository | views 2140 → 2142
 
 ## RAW / UNCLASSIFIED
-- auth: no key (300 req/day per IP) · unanswered window: after 2026-09-19
-- tag check → 15
-- tags found: github (58068), automation (23528), stripe-payments (12546), shopify (8773), workflow (5423), open-source (3481), openai-api (2538), langchain (1970), licensing (1811), large-language-model (1569), zapier (1140), payment-processing (683), chatgpt-api (500), airtable (264), n8n (78)
-- configured tags not returned by /tags/info (absent or synonym): llm, webhook, open-source-licensing
+- auth: no key (300 req/day per IP) · unanswered window: after 2026-08-27
+- tag check → 16
+- tags found: github (58068), automation (23528), stripe-payments (12546), shopify (8773), workflow (5423), webhooks (4844), open-source (3481), openai-api (2538), langchain (1970), licensing (1811), large-language-model (1569), zapier (1140), payment-processing (683), chatgpt-api (500), airtable (264), n8n (78)
+- configured tags not returned by /tags/info (absent or synonym): llm
 - tag names returned that are not in config (likely synonym masters): large-language-model (1569)
 - unanswered [openai-api] → 0
 - open bounties [openai-api] → 0
@@ -90,8 +95,8 @@ run: 2026-09-26T10:03:28.797Z · keyword signals: 0 · trending: 14 · new: 0 ·
 - open bounties [payment-processing] → 0
 - unanswered [shopify] → 0
 - open bounties [shopify] → 0
-- unanswered [webhook] → 0
-- open bounties [webhook] → 0
+- unanswered [webhooks] → 1
+- open bounties [webhooks] → 0
 - unanswered [zapier] → 0
 - open bounties [zapier] → 0
 - unanswered [n8n] → 0
@@ -104,12 +109,10 @@ run: 2026-09-26T10:03:28.797Z · keyword signals: 0 · trending: 14 · new: 0 ·
 - open bounties [airtable] → 0
 - unanswered [open-source] → 0
 - open bounties [open-source] → 0
-- unanswered [github] → 0
+- unanswered [github] → 1
 - open bounties [github] → 0
 - unanswered [licensing] → 0
 - open bounties [licensing] → 0
-- unanswered [open-source-licensing] → 0
-- open bounties [open-source-licensing] → 0
 - hot [openai-api] → 0
 - hot [langchain] → 0
 - hot [llm] → 2
@@ -117,7 +120,7 @@ run: 2026-09-26T10:03:28.797Z · keyword signals: 0 · trending: 14 · new: 0 ·
 - hot [stripe-payments] → 1
 - hot [payment-processing] → 0
 - hot [shopify] → 0
-- hot [webhook] → 0
+- hot [webhooks] → 0
 - hot [zapier] → 0
 - hot [n8n] → 0
 - hot [automation] → 2
@@ -126,5 +129,4 @@ run: 2026-09-26T10:03:28.797Z · keyword signals: 0 · trending: 14 · new: 0 ·
 - hot [open-source] → 1
 - hot [github] → 7
 - hot [licensing] → 0
-- hot [open-source-licensing] → 0
-- api calls: 52 · quota remaining: 250/300
+- api calls: 49 · quota remaining: 203/300
