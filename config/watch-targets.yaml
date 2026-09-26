@@ -99,7 +99,7 @@ targets:
         - stripe-payments
         - payment-processing
         - shopify
-        - webhook
+        - webhooks
 
   # ─── TARGET 3: No-Code & Automation for Non-Technical Builders ────────
   # LAYER: How to build
@@ -179,14 +179,13 @@ targets:
         - open-source
         - github
         - licensing
-        - open-source-licensing
 
 # ─── GLOBAL SETTINGS ──────────────────────────────────────────────────────
 settings:
   max_results_per_query: 30       # per API call, not total
   days_back_github: 7             # search window for issue/PR queries
   days_back_hn: 3                 # HN stories age limit (Algolia)
-  days_back_stackoverflow: 7      # SO questions age limit
+  days_back_stackoverflow: 30     # widened from 7 — SO volume is very low in 2026
   min_stars_fork_watch: 50        # ignore forks of tiny repos
   min_score_hn: 5                 # minimum HN points to include
 
