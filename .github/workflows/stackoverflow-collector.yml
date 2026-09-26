@@ -1,0 +1,42 @@
+name: stackoverflow-collector
+
+on:
+  schedule:
+    - cron: "10 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: radar-report-commit # same group in all three workflows: serialises commit+push
+  cancel-in-progress: false
+  queue: max # default queue keeps only ONE pending run and a newer one replaces it (docs.github.com, verified 2026-09-24)
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      - name: Collect
+        run: npx tsx src/collectors/stackoverflow-collector.ts
+        env:
+          STACKEXCHANGE_KEY: ${{ secrets.STACKEXCHANGE_KEY }}
+      # Runs even if the collector exited non-zero, so an error report (RAW section) is still kept.
+      # The job stays red in that case because the Collect step failed.
+      - name: Commit and push report
+        if: success() || failure()
+        run: |
+          git config user.name  "OSS-Radar Bot"
+          git config user.email "radar@users.noreply.github.com"
+          git add data/reports/
+          git diff --cached --quiet && echo "no new data" && exit 0
+          git commit -m "radar: stackoverflow report $(date -u +%Y-%m-%d-%H)"
+          git pull --rebase origin main
+          git push origin HEAD:main

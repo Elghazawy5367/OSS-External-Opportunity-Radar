@@ -1,0 +1,25 @@
+{
+  "name": "oss-external-opportunity-radar",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Scheduled raw-signal collectors (GitHub, Hacker News, Stack Overflow) that commit Markdown reports to this repo. No scoring, no LLM.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "collect:github": "tsx src/collectors/github-collector.ts",
+    "collect:hn": "tsx src/collectors/hn-collector.ts",
+    "collect:stackoverflow": "tsx src/collectors/stackoverflow-collector.ts"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.3",
+    "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
