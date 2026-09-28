@@ -1,10 +1,5 @@
-// stackoverflow-collector — raw signals from the Stack Exchange API v2.3 (site=stackoverflow).
-// Keyword pass: per target tag, unanswered questions within days_back_stackoverflow + open bounties.
-// Trending pass: per tag "hot" questions (or "activity" when use_hot_endpoint is false),
-// interleaved across tags up to max_results.
-// Run: npx tsx src/collectors/stackoverflow-collector.ts   (STACKEXCHANGE_KEY optional but recommended)
-import { clean, daysAgo, decodeEntities, getJson, isoDay, loadConfig, sleep } from './common';
-import { finish, writeReport, type Signal } from '../formatters/report-writer';
+import { clean, daysAgo, decodeEntities, getJson, isoDay, loadConfig, sleep, type CollectionResult, type CollectionStatus, type Target } from './common';
+import { finish, writeReport, writeEconomicReport, type Signal } from '../formatters/report-writer';
 
 interface Question {
   question_id: number;
@@ -41,15 +36,17 @@ const raw: string[] = [];
 let calls = 0;
 let quota = '';
 let backoffUntil = 0;
+let queriesAttempted = 0;
+let queriesSucceeded = 0;
 
 async function se<T>(path: string, params: Record<string, string>, label: string): Promise<T[]> {
+  queriesAttempted++;
   const qs = new URLSearchParams({ site: 'stackoverflow', ...params, ...(key ? { key } : {}) });
   const wait = Math.max(backoffUntil - Date.now(), calls > 0 ? 150 : 0);
   if (wait) await sleep(wait);
   calls++;
   const res = await getJson<Wrapper<T>>(`${API}${path}?${qs}`);
   if (res.body?.backoff) {
-    // The API requires honouring `backoff` before the next call to the same method.
     backoffUntil = Date.now() + res.body.backoff * 1000;
     raw.push(`API requested backoff ${res.body.backoff}s after ${label}`);
   }
@@ -59,6 +56,7 @@ async function se<T>(path: string, params: Record<string, string>, label: string
     return [];
   }
   raw.push(`${label} → ${res.body.items.length}${res.body.has_more ? ' (more available)' : ''}`);
+  queriesSucceeded++;
   return res.body.items;
 }
 
@@ -70,6 +68,7 @@ function questionSignal(q: Question, subject: string, type: string): Signal {
     subjects: [subject],
     title: clean(decodeEntities(q.title), 180),
     date: isoDay(q.creation_date * 1000),
+    date_type: 'created',
     metrics,
     url: q.link,
     context:
@@ -80,70 +79,106 @@ function questionSignal(q: Question, subject: string, type: string): Signal {
 
 async function main() {
   const runAt = new Date();
-  const { targets, settings } = loadConfig();
-  const per = String(settings.max_results_per_query);
-  const fromdate = String(Math.floor(daysAgo(settings.days_back_stackoverflow, runAt).getTime() / 1000));
-  raw.push(`auth: ${key ? 'STACKEXCHANGE_KEY present' : 'no key (300 req/day per IP)'} · unanswered window: after ${isoDay(Number(fromdate) * 1000)}`);
-
-  const tagOwners = new Map<string, string[]>();
-  for (const t of targets) {
-    for (const tag of t.sources.stackoverflow_tags ?? []) tagOwners.set(tag, [...(tagOwners.get(tag) ?? []), t.id]);
-  }
-  const tags = [...tagOwners.keys()];
-
-  // Build-time tag check, repeated every run so renamed/merged tags stay visible in the report.
-  const info = await se<TagInfo>(`/tags/${tags.map(encodeURIComponent).join(';')}/info`, { pagesize: '100' }, 'tag check');
-  const found = new Set(info.map((i) => i.name));
-  const missing = tags.filter((t) => !found.has(t));
-  const extra = info.filter((i) => !tags.includes(i.name)).map((i) => `${i.name} (${i.count})`);
-  raw.push(`tags found: ${info.map((i) => `${i.name} (${i.count})`).join(', ')}`);
-  if (missing.length) raw.push(`configured tags not returned by /tags/info (absent or synonym): ${missing.join(', ')}`);
-  if (extra.length) raw.push(`tag names returned that are not in config (likely synonym masters): ${extra.join(', ')}`);
-
   const keyword: Signal[] = [];
-  for (const [tag, owners] of tagOwners) {
-    const unanswered = await se<Question>(
-      '/questions/unanswered',
-      { tagged: tag, fromdate, sort: 'creation', order: 'desc', pagesize: per },
-      `unanswered [${tag}]`,
-    );
-    const bounties = await se<Question>(
-      '/questions/featured',
-      { tagged: tag, sort: 'creation', order: 'desc', pagesize: per },
-      `open bounties [${tag}]`,
-    );
-    for (const owner of owners) {
-      for (const q of unanswered) keyword.push(questionSignal(q, owner, 'unanswered'));
-      for (const q of bounties) keyword.push(questionSignal(q, owner, 'bounty'));
-    }
-  }
-
   const trending: Signal[] = [];
-  const tr = settings.trending;
-  if (tr?.enabled) {
-    const sort = tr.stackoverflow.use_hot_endpoint ? 'hot' : 'activity';
-    const perTag: Question[][] = [];
-    for (const tag of tags) {
-      perTag.push(
-        await se<Question>('/questions', { tagged: tag, sort, order: 'desc', pagesize: String(tr.stackoverflow.max_results) }, `${sort} [${tag}]`),
-      );
+  let status: CollectionStatus = 'SUCCESS';
+  let errorClass: string | undefined;
+  let targets: Target[] = [];
+
+  try {
+    const config = loadConfig();
+    targets = config.targets;
+    const settings = config.settings;
+    const per = String(settings.max_results_per_query);
+    const fromdate = String(Math.floor(daysAgo(settings.days_back_stackoverflow, runAt).getTime() / 1000));
+    raw.push(`auth: ${key ? 'STACKEXCHANGE_KEY present' : 'no key (300 req/day per IP)'} · unanswered window: after ${isoDay(Number(fromdate) * 1000)}`);
+
+    const tagOwners = new Map<string, string[]>();
+    for (const t of targets) {
+      for (const tag of t.sources.stackoverflow_tags ?? []) tagOwners.set(tag, [...(tagOwners.get(tag) ?? []), t.id]);
     }
-    // Interleave by each tag's own API order so no tag dominates; no ranking of our own.
-    const seen = new Set<number>();
-    for (let i = 0; trending.length < tr.stackoverflow.max_results && perTag.some((l) => l[i]); i++) {
-      for (const [j, list] of perTag.entries()) {
-        const q = list[i];
-        if (!q || seen.has(q.question_id) || trending.length >= tr.stackoverflow.max_results) continue;
-        seen.add(q.question_id);
-        trending.push(questionSignal(q, `trending:${tags[j]}`, sort));
+    const tags = [...tagOwners.keys()];
+
+    const info = await se<TagInfo>(`/tags/${tags.map(encodeURIComponent).join(';')}/info`, { pagesize: '100' }, 'tag check');
+    const found = new Set(info.map((i) => i.name));
+    const missing = tags.filter((t) => !found.has(t));
+    const extra = info.filter((i) => !tags.includes(i.name)).map((i) => `${i.name} (${i.count})`);
+    raw.push(`tags found: ${info.map((i) => `${i.name} (${i.count})`).join(', ')}`);
+    if (missing.length) raw.push(`configured tags not returned by /tags/info (absent or synonym): ${missing.join(', ')}`);
+    if (extra.length) raw.push(`tag names returned that are not in config (likely synonym masters): ${extra.join(', ')}`);
+
+    for (const [tag, owners] of tagOwners) {
+      const unanswered = await se<Question>(
+        '/questions/unanswered',
+        { tagged: tag, fromdate, sort: 'creation', order: 'desc', pagesize: per },
+        `unanswered [${tag}]`,
+      );
+      const bounties = await se<Question>(
+        '/questions/featured',
+        { tagged: tag, sort: 'creation', order: 'desc', pagesize: per },
+        `open bounties [${tag}]`,
+      );
+      for (const owner of owners) {
+        for (const q of unanswered) keyword.push(questionSignal(q, owner, 'unanswered'));
+        for (const q of bounties) keyword.push(questionSignal(q, owner, 'bounty'));
       }
     }
-  } else {
-    raw.push('trending pass disabled in settings');
+
+    const tr = settings.trending;
+    if (tr?.enabled) {
+      const sort = tr.stackoverflow.use_hot_endpoint ? 'hot' : 'activity';
+      const perTag: Question[][] = [];
+      for (const tag of tags) {
+        perTag.push(
+          await se<Question>('/questions', { tagged: tag, sort, order: 'desc', pagesize: String(tr.stackoverflow.max_results) }, `${sort} [${tag}]`),
+        );
+      }
+      const seen = new Set<number>();
+      for (let i = 0; trending.length < tr.stackoverflow.max_results && perTag.some((l) => l[i]); i++) {
+        for (const [j, list] of perTag.entries()) {
+          const q = list[i];
+          if (!q || seen.has(q.question_id) || trending.length >= tr.stackoverflow.max_results) continue;
+          seen.add(q.question_id);
+          trending.push(questionSignal(q, `trending:${tags[j]}`, sort));
+        }
+      }
+    } else {
+      raw.push('trending pass disabled in settings');
+    }
+  } catch (e) {
+    status = 'FAILED';
+    errorClass = (e as Error).constructor.name;
+    raw.push(`fatal: ${(e as Error).message}`);
   }
 
+  if (status !== 'FAILED') {
+    if (queriesSucceeded === 0 && queriesAttempted > 0) {
+      status = 'SOURCE_ERROR';
+    } else if (queriesSucceeded < queriesAttempted) {
+      status = 'PARTIAL';
+    }
+  }
+
+  const collection: CollectionResult = {
+    status,
+    pages_requested: queriesAttempted,
+    pages_succeeded: queriesSucceeded,
+    error_class: errorClass,
+  };
+
   raw.push(`api calls: ${calls} · quota remaining: ${quota || 'unknown'}`);
-  finish('stackoverflow', writeReport({ source: 'stackoverflow', runAt, keyword, trending, raw }));
+  const result = writeReport({ source: 'stackoverflow', runAt, keyword, trending, raw, collection });
+  if (!result.written) {
+    console.error(`[stackoverflow] collection ${status} — raw log:`);
+    for (const msg of raw) console.error(`  ${msg}`);
+  }
+  const econResult = writeEconomicReport({ source: 'stackoverflow', runAt, keyword, trending, raw, collection }, targets);
+  if (econResult.written) {
+    console.log(`[stackoverflow] economic: ${econResult.path} — ${econResult.keywordCount} signals`);
+  } else {
+    console.error(`[stackoverflow] economic report suppressed (${status}, 0 economic matches)`);
+  }
+  finish('stackoverflow', result, status);
 }
 
 main().catch((e) => {

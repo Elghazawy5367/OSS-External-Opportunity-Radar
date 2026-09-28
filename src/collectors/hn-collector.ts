@@ -1,9 +1,5 @@
-// hn-collector — raw signals from the Hacker News Algolia API (no auth).
-// Keyword pass: per target keyword, stories newest-first within days_back_hn and >= min_score_hn.
-// Trending pass: highest-point stories in the same window, no keyword filter.
-// Run: npx tsx src/collectors/hn-collector.ts
-import { clean, daysAgo, decodeEntities, getJson, isoDay, loadConfig, sleep } from './common';
-import { finish, writeReport, type Signal } from '../formatters/report-writer';
+import { clean, daysAgo, decodeEntities, getJson, isoDay, loadConfig, sleep, type CollectionResult, type CollectionStatus, type Target } from './common';
+import { finish, writeReport, writeEconomicReport, type Signal } from '../formatters/report-writer';
 
 interface Hit {
   objectID: string;
@@ -25,10 +21,11 @@ interface SearchResponse {
 const API = 'https://hn.algolia.com/api/v1';
 const raw: string[] = [];
 let calls = 0;
+let queriesAttempted = 0;
+let queriesSucceeded = 0;
 
-// typoTolerance=false stops "n8n" matching "non"/"nin" (observed live 2026-09-24).
-// queryType=prefixNone is meant to stop "ai" prefix-matching "air"; its effect was NOT confirmed live.
 async function query(endpoint: 'search' | 'search_by_date', params: Record<string, string>, label: string): Promise<Hit[]> {
+  queriesAttempted++;
   const qs = new URLSearchParams({ tags: 'story', typoTolerance: 'false', queryType: 'prefixNone', ...params });
   if (calls > 0) await sleep(250);
   calls++;
@@ -38,6 +35,7 @@ async function query(endpoint: 'search' | 'search_by_date', params: Record<strin
     return [];
   }
   raw.push(`${label} → ${res.body.hits.length} of ${res.body.nbHits}`);
+  queriesSucceeded++;
   return res.body.hits;
 }
 
@@ -50,6 +48,7 @@ function hitSignal(h: Hit, subject: string): Signal {
     subjects: [subject],
     title: clean(decodeEntities(h.title ?? ''), 180),
     date: isoDay(h.created_at_i * 1000),
+    date_type: 'created',
     metrics: { points: h.points ?? 0, comments: h.num_comments ?? 0 },
     url: `https://news.ycombinator.com/item?id=${h.objectID}`,
     context: `by ${h.author} · ${link}`,
@@ -58,46 +57,83 @@ function hitSignal(h: Hit, subject: string): Signal {
 
 async function main() {
   const runAt = new Date();
-  const { targets, settings } = loadConfig();
-  const since = Math.floor(daysAgo(settings.days_back_hn, runAt).getTime() / 1000);
-  raw.push(`window: stories created after ${isoDay(since * 1000)} · keyword min points: ${settings.min_score_hn}`);
-
   const keyword: Signal[] = [];
-  for (const t of targets) {
-    for (const kw of t.sources.keywords ?? []) {
+  const trending: Signal[] = [];
+  let status: CollectionStatus = 'SUCCESS';
+  let errorClass: string | undefined;
+  let targets: Target[] = [];
+
+  try {
+    const config = loadConfig();
+    targets = config.targets;
+    const settings = config.settings;
+    const since = Math.floor(daysAgo(settings.days_back_hn, runAt).getTime() / 1000);
+    raw.push(`window: stories created after ${isoDay(since * 1000)} · keyword min points: ${settings.min_score_hn}`);
+
+    for (const t of targets) {
+      for (const kw of t.sources.keywords ?? []) {
+        const hits = await query(
+          'search_by_date',
+          {
+            query: kw,
+            numericFilters: `created_at_i>${since},points>=${settings.min_score_hn}`,
+            hitsPerPage: String(settings.max_results_per_query),
+          },
+          `keyword "${kw}"`,
+        );
+        for (const h of hits) keyword.push(hitSignal(h, t.id));
+      }
+    }
+
+    const tr = settings.trending;
+    if (tr?.enabled) {
       const hits = await query(
-        'search_by_date',
+        'search',
         {
-          query: kw,
-          numericFilters: `created_at_i>${since},points>=${settings.min_score_hn}`,
-          hitsPerPage: String(settings.max_results_per_query),
+          query: '',
+          numericFilters: `created_at_i>${since},points>=${tr.hackernews.min_points}`,
+          hitsPerPage: String(tr.hackernews.max_results),
         },
-        `keyword "${kw}"`,
+        `trending (points >= ${tr.hackernews.min_points})`,
       );
-      for (const h of hits) keyword.push(hitSignal(h, t.id));
+      for (const h of hits) trending.push(hitSignal(h, 'trending'));
+    } else {
+      raw.push('trending pass disabled in settings');
+    }
+  } catch (e) {
+    status = 'FAILED';
+    errorClass = (e as Error).constructor.name;
+    raw.push(`fatal: ${(e as Error).message}`);
+  }
+
+  if (status !== 'FAILED') {
+    if (queriesSucceeded === 0 && queriesAttempted > 0) {
+      status = 'SOURCE_ERROR';
+    } else if (queriesSucceeded < queriesAttempted) {
+      status = 'PARTIAL';
     }
   }
 
-  const trending: Signal[] = [];
-  const tr = settings.trending;
-  if (tr?.enabled) {
-    // /search with an empty query orders by popularity (points) — the velocity view of the window.
-    const hits = await query(
-      'search',
-      {
-        query: '',
-        numericFilters: `created_at_i>${since},points>=${tr.hackernews.min_points}`,
-        hitsPerPage: String(tr.hackernews.max_results),
-      },
-      `trending (points >= ${tr.hackernews.min_points})`,
-    );
-    for (const h of hits) trending.push(hitSignal(h, 'trending'));
-  } else {
-    raw.push('trending pass disabled in settings');
-  }
+  const collection: CollectionResult = {
+    status,
+    pages_requested: queriesAttempted,
+    pages_succeeded: queriesSucceeded,
+    error_class: errorClass,
+  };
 
   raw.push(`api calls: ${calls}`);
-  finish('hackernews', writeReport({ source: 'hackernews', runAt, keyword, trending, raw }));
+  const result = writeReport({ source: 'hackernews', runAt, keyword, trending, raw, collection });
+  if (!result.written) {
+    console.error(`[hackernews] collection ${status} — raw log:`);
+    for (const msg of raw) console.error(`  ${msg}`);
+  }
+  const econResult = writeEconomicReport({ source: 'hackernews', runAt, keyword, trending, raw, collection }, targets);
+  if (econResult.written) {
+    console.log(`[hackernews] economic: ${econResult.path} — ${econResult.keywordCount} signals`);
+  } else {
+    console.error(`[hackernews] economic report suppressed (${status}, 0 economic matches)`);
+  }
+  finish('hackernews', result, status);
 }
 
 main().catch((e) => {

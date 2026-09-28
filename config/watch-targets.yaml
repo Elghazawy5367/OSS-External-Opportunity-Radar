@@ -27,20 +27,17 @@ targets:
     evidence_level: HYPOTHESIS
     sources:
       github_topics:
-        - artificial-intelligence
-        - openai
-        - langchain
-        - llm
         - saas-boilerplate
         - ai-tools
       github_search_queries:
         - "ai saas starter"
         - "ai wrapper"
         - "openai tool"
-        - "ai side project"
+        - "langchain template"
         - "llm app template"
         - "ai automation tool"
         - "gpt api tool"
+        - "ai side project revenue"
       keywords:  # hn-collector — HN-native vocabulary, not hustle-culture
         - Show HN ai
         - ai side project
@@ -58,6 +55,56 @@ targets:
         - langchain
         - llm
         - chatgpt-api
+    economic_keywords:
+      buyer_intent:
+        - looking for ai tool
+        - need ai solution
+        - want to automate
+        - hiring ai developer
+        - budget for ai
+        - pay for ai
+        - willing to pay
+      price_wtp:
+        - per month
+        - per year
+        - pricing
+        - subscription
+        - free tier
+        - paid plan
+        - enterprise plan
+      procurement:
+        - rfp
+        - vendor selection
+        - evaluating tools
+        - procurement
+      commercial_support:
+        - commercial license
+        - enterprise support
+        - managed service
+        - professional services
+        - consulting
+      hiring_labor:
+        - hiring ai engineer
+        - looking for developer
+        - freelance ai
+        - contract developer
+      fee_seller:
+        - api cost
+        - token cost
+        - usage fee
+        - compute cost
+        - inference cost
+      competition:
+        - alternative to
+        - competitor
+        - compared to
+        - switching from
+      commercialization:
+        - monetize
+        - revenue model
+        - business model
+        - go to market
+        - launch pricing
 
   # ─── TARGET 2: Digital Product & Creator Platforms ─────────────────────
   # LAYER: Where to sell
@@ -100,6 +147,53 @@ targets:
         - payment-processing
         - shopify
         - webhooks
+    economic_keywords:
+      buyer_intent:
+        - looking for platform
+        - need marketplace
+        - want to sell
+        - buying digital
+        - looking for course platform
+      price_wtp:
+        - pricing
+        - transaction fee
+        - platform fee
+        - revenue share
+        - per sale
+        - monthly plan
+        - payout
+      procurement:
+        - evaluating platforms
+        - comparing platforms
+        - migrating from
+        - switching platform
+      commercial_support:
+        - white label
+        - custom storefront
+        - managed marketplace
+        - reseller
+      hiring_labor:
+        - hiring content creator
+        - freelance designer
+        - looking for seller
+      fee_seller:
+        - seller fee
+        - listing fee
+        - commission
+        - payment processing fee
+        - stripe fee
+      competition:
+        - gumroad vs
+        - alternative to gumroad
+        - alternative to shopify
+        - lemon squeezy vs
+        - compared to
+      commercialization:
+        - monetize content
+        - sell digital products
+        - launch course
+        - creator revenue
+        - passive income
 
   # ─── TARGET 3: No-Code & Automation for Non-Technical Builders ────────
   # LAYER: How to build
@@ -142,6 +236,54 @@ targets:
         - automation
         - workflow
         - airtable
+    economic_keywords:
+      buyer_intent:
+        - looking for automation
+        - need no-code tool
+        - want to automate
+        - budget for tool
+        - pay for automation
+      price_wtp:
+        - pricing
+        - free plan
+        - paid plan
+        - per workflow
+        - per task
+        - subscription
+        - usage limit
+      procurement:
+        - evaluating tools
+        - comparing tools
+        - enterprise plan
+        - team plan
+      commercial_support:
+        - managed hosting
+        - enterprise support
+        - custom integration
+        - professional services
+      hiring_labor:
+        - hiring automation expert
+        - freelance zapier
+        - no-code developer
+        - automation consultant
+      fee_seller:
+        - platform fee
+        - usage cost
+        - overage charge
+        - per execution
+      competition:
+        - zapier vs
+        - n8n vs
+        - make vs
+        - alternative to zapier
+        - alternative to make
+        - switching from
+      commercialization:
+        - sell automation
+        - automation agency
+        - template marketplace
+        - workflow template
+        - monetize automation
 
   # ─── TARGET 4: OSS Sustainability & Funding Gaps ──────────────────────
   # LAYER: Hypothesis test
@@ -179,6 +321,52 @@ targets:
         - open-source
         - github
         - licensing
+    economic_keywords:
+      buyer_intent:
+        - looking for maintainer
+        - need open source support
+        - sponsor
+        - funding
+        - donate
+        - grant
+      price_wtp:
+        - sponsorship tier
+        - funding goal
+        - bounty
+        - reward
+        - per month sponsor
+      procurement:
+        - open source procurement
+        - license compliance
+        - vendor support
+        - support contract
+      commercial_support:
+        - commercial support
+        - enterprise edition
+        - paid support
+        - dual license
+        - open core
+      hiring_labor:
+        - hiring maintainer
+        - paid contributor
+        - looking for contributors
+        - contract maintainer
+      fee_seller:
+        - license fee
+        - support fee
+        - hosting cost
+        - infrastructure cost
+      competition:
+        - fork because
+        - alternative to
+        - replacing
+        - migrating away
+      commercialization:
+        - open source business
+        - sustainability model
+        - open source revenue
+        - open core model
+        - freemium open source
 
 # ─── GLOBAL SETTINGS ──────────────────────────────────────────────────────
 settings:

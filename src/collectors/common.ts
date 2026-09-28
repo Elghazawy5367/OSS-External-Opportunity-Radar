@@ -22,6 +22,7 @@ export interface Target {
   name: string;
   evidence_level?: string;
   sources: TargetSources;
+  economic_keywords?: Record<string, string[]>;
 }
 
 export interface Settings {
@@ -109,4 +110,13 @@ export function decodeEntities(s: string): string {
     }
     return ENTITIES[code.toLowerCase()] ?? m;
   });
+}
+
+export type CollectionStatus = 'SUCCESS' | 'SOURCE_ERROR' | 'RATE_LIMITED' | 'PARTIAL' | 'FAILED';
+
+export interface CollectionResult {
+  status: CollectionStatus;
+  pages_requested: number;
+  pages_succeeded: number;
+  error_class?: string;
 }
