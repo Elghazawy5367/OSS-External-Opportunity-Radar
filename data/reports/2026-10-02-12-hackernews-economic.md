@@ -1,0 +1,72 @@
+# ECONOMIC REPORT — hackernews — 2026-10-02 12:00
+
+```
+run_time: 2026-10-02T12:27:50.533Z
+source: hackernews
+collection_status: SUCCESS
+economic_signals_found: 2
+observation_signals_scanned: 45
+pages_requested: 42
+pages_succeeded: 42
+watch_targets_version: 2026-10-02
+collector_version: 0.1.0
+```
+
+run: 2026-10-02T12:27:50.533Z · economic signals: 2 · observation signals scanned: 45
+
+## OBSERVED
+
+### SUPPLY_INTENSITY
+- SUPPLY_INTENSITY | E1 | intent_tier: E1 | "Show HN: Engrams, an open source alternative to Devin" | 2026-10-01 | matched: "alternative to" | https://news.ycombinator.com/item?id=49923064
+  context: by nikhilunni · links to: https://github.com/cortexapps/engrams
+- SUPPLY_INTENSITY | E1 | intent_tier: E1 | "Vermont replacing power plants with home batteries" | 2026-09-29 | matched: "replacing" | https://news.ycombinator.com/item?id=49897993
+  context: by devonnull · links to: https://www.bbc.com/future/article/20260928-a-virtual-power-plant-hidden-in-vermont-homes-is-keeping-the-lights-on-during-storms
+
+## MODELED
+No modeled signals in collection output.
+
+## RAW / UNCLASSIFIED
+- window: stories created after 2026-09-29 · keyword min points: 5
+- keyword "Show HN ai" → 14 of 14
+- keyword "ai side project" → 2 of 2
+- keyword "bootstrapped ai" → 0 of 0
+- keyword "ramen profitable" → 0 of 0
+- keyword "ai saas revenue" → 0 of 0
+- keyword "indie hacker ai" → 0 of 0
+- keyword "solo founder ai" → 0 of 0
+- keyword "ai wrapper" → 0 of 0
+- keyword "MRR ai" → 0 of 0
+- keyword "profitable ai project" → 0 of 0
+- keyword "ai tool launch" → 0 of 0
+- keyword "gumroad" → 0 of 0
+- keyword "lemonsqueezy" → 0 of 0
+- keyword "digital products" → 0 of 0
+- keyword "creator economy" → 0 of 0
+- keyword "course creator" → 0 of 0
+- keyword "selling online" → 0 of 0
+- keyword "print on demand" → 0 of 0
+- keyword "Show HN marketplace" → 0 of 0
+- keyword "bootstrapped marketplace" → 0 of 0
+- keyword "passive income product" → 0 of 0
+- keyword "solo founder revenue" → 0 of 0
+- keyword "no-code" → 0 of 0
+- keyword "low-code" → 0 of 0
+- keyword "non-technical founder" → 0 of 0
+- keyword "zapier alternative" → 0 of 0
+- keyword "make.com" → 0 of 0
+- keyword "n8n" → 0 of 0
+- keyword "airtable" → 0 of 0
+- keyword "without coding" → 1 of 1
+- keyword "Show HN automation" → 0 of 0
+- keyword "bootstrapped no-code" → 0 of 0
+- keyword "solo founder tool" → 0 of 0
+- keyword "open source funding" → 0 of 0
+- keyword "maintainer burnout" → 0 of 0
+- keyword "open source sustainability" → 0 of 0
+- keyword "github sponsors" → 0 of 0
+- keyword "fork because abandoned" → 0 of 0
+- keyword "bus factor" → 0 of 0
+- keyword "Show HN open source" → 13 of 13
+- keyword "open source business model" → 1 of 1
+- trending (points >= 50) → 20 of 154
+- api calls: 42
