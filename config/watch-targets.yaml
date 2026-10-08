@@ -85,8 +85,10 @@ targets:
           - {topic: arabic, pushed_within_days: 30, min_stars: 50}                  # 14 (200+ floor gave 4). `topic:rtl` DROPPED: = hardware RTL
         issue_queries:
           - {phrase: "RTL support",        in: "title,body", state: open, created_within_days: 30, min_comments: 3}   # 29
-          - {phrase: "arabic translation", in: "title,body", state: open, created_within_days: 30}                    # 159 (comments>=3 gave 10)
-          - {phrase: "arabic",             in: "title,body", state: open, created_within_days: 30, min_comments: 3}   # 232 (top of range)
+          # The two queries below were switched from in:"title,body" to in:"title" (Ahmed decision 2026-10-08): body-text mentions
+          #   made the old versions ~45% on-topic (237 and 159 hits on 2026-10-07). Probe 2026-10-08 (probe-session12-raw/github-t3-title.json).
+          - {phrase: "arabic translation", in: "title",      state: open, created_within_days: 30}                    # 17 (was 159 title+body)
+          - {phrase: "arabic",             in: "title",      state: open, created_within_days: 30, min_comments: 3}   # 31 (was 237 title+body)
       hackernews:                       # THIN: only produces volume on a wide window
         queries:
           - {query: "RTL",    tag: story, title_only: true, min_points: 2}          # bounded: 0 @30d/5pts, 11 @90d/2pts
