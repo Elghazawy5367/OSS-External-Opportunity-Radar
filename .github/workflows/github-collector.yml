@@ -27,7 +27,10 @@ jobs:
       - name: Collect
         run: npx tsx src/collectors/github-collector.ts
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Repo secret OSS_RADAR_GITHUB_PAT (single underscore, as shown in Settings > Secrets, Ahmed 2026-10-08) feeds the
+          # collector's search calls; falls back to the built-in token if the secret is empty. Pushing the report uses the
+          # checkout credentials, not this value.
+          GITHUB_TOKEN: ${{ secrets.OSS_RADAR_GITHUB_PAT || secrets.GITHUB_TOKEN }}
       # Runs even if the collector exited non-zero, so an error report (RAW section) is still kept.
       # The job stays red in that case because the Collect step failed.
       - name: Commit and push report

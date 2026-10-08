@@ -1,4 +1,4 @@
-import { clean, daysAgo, getJson, isoDay, loadConfig, sleep, type CollectionResult, type CollectionStatus, type Target } from './common';
+import { capRoundRobin, clean, daysAgo, getJson, isoDay, loadConfig, sleep, type CollectionResult, type CollectionStatus, type Target } from './common';
 import { finish, writeReport, writeEconomicReport, type Signal } from '../formatters/report-writer';
 
 interface Repo {
@@ -116,6 +116,14 @@ function issueSignal(i: Issue, subject: string): Signal {
   };
 }
 
+/** A signal plus the report section it belongs to. Created-window topic queries are the velocity ("trending") pass. */
+interface Tagged {
+  signal: Signal;
+  bucket: 'keyword' | 'trending';
+}
+
+const sinceDay = (days: number, runAt: Date) => isoDay(daysAgo(days, runAt));
+
 async function main() {
   const runAt = new Date();
   const keyword: Signal[] = [];
@@ -123,39 +131,54 @@ async function main() {
   let status: CollectionStatus = 'SUCCESS';
   let errorClass: string | undefined;
   let targets: Target[] = [];
+  let economicKeywords: Record<string, string[]> = {};
+  let watchTargetsVersion = 'unknown';
 
   try {
     const config = loadConfig();
     targets = config.targets;
+    economicKeywords = config.economic_keywords;
+    watchTargetsVersion = config.watch_targets_version;
     const settings = config.settings;
     const per = settings.max_results_per_query;
-    const since = isoDay(daysAgo(settings.days_back_github, runAt));
-    raw.push(`auth: ${token ? 'GITHUB_TOKEN present' : 'anonymous (10 search req/min)'} · window: pushed/created after ${since}`);
+    raw.push(`auth: ${token ? 'GITHUB_TOKEN present' : 'anonymous (10 search req/min)'} · config v${watchTargetsVersion} · windows are per query`);
 
     for (const t of targets) {
-      for (const topic of t.sources.github_topics ?? []) {
-        const q = `topic:${topic} pushed:>${since} stars:>=${settings.min_stars_fork_watch}`;
-        for (const r of await search<Repo>('repositories', q, 'stars', per)) keyword.push(repoSignal(r, t.id));
-      }
-      for (const phrase of t.sources.github_search_queries ?? []) {
-        const rq = `${phrase} in:name,description,readme pushed:>${since}`;
-        for (const r of await search<Repo>('repositories', rq, 'stars', per)) keyword.push(repoSignal(r, t.id));
-        const iq = `"${phrase}" is:issue created:>${since}`;
-        for (const i of await search<Issue>('issues', iq, 'created', per)) keyword.push(issueSignal(i, t.id));
-      }
-    }
+      const g = t.sources.github;
+      if (!g) continue;
+      const groups: Tagged[][] = [];
 
-    const tr = settings.trending;
-    if (tr?.enabled) {
-      const created = isoDay(daysAgo(tr.github.created_within_days, runAt));
-      for (const topic of tr.github.topics_filter) {
-        const q = `topic:${topic} created:>${created} stars:>=${tr.github.min_stars}`;
-        for (const r of await search<Repo>('repositories', q, tr.github.sort_by, per)) {
-          trending.push(repoSignal(r, `trending:${topic}`, 'trending_repo'));
-        }
+      for (const e of g.repo_topics ?? []) {
+        const velocity = e.created_within_days !== undefined;
+        const win = velocity
+          ? `created:>${sinceDay(e.created_within_days!, runAt)}`
+          : `pushed:>${sinceDay(e.pushed_within_days!, runAt)}`;
+        const items = await search<Repo>('repositories', `topic:${e.topic} ${win} stars:>=${e.min_stars}`, 'stars', per);
+        groups.push(items.map((r) => ({
+          signal: repoSignal(r, t.id, velocity ? 'trending_repo' : 'repo'),
+          bucket: velocity ? 'trending' : 'keyword',
+        })));
       }
-    } else {
-      raw.push('trending pass disabled in settings');
+
+      for (const e of g.repo_phrases ?? []) {
+        const q = `"${e.phrase}" in:${e.in} created:>${sinceDay(e.created_within_days, runAt)} stars:>=${e.min_stars}`;
+        const items = await search<Repo>('repositories', q, 'stars', per);
+        groups.push(items.map((r) => ({ signal: repoSignal(r, t.id), bucket: 'keyword' as const })));
+      }
+
+      for (const e of g.issue_queries ?? []) {
+        const subject = e.label ? `label:${e.label}` : `"${e.phrase}" in:${e.in}`;
+        const q =
+          `${subject} is:issue is:${e.state} created:>${sinceDay(e.created_within_days, runAt)}` +
+          (e.min_reactions !== undefined ? ` reactions:>=${e.min_reactions}` : '') +
+          (e.min_comments !== undefined ? ` comments:>=${e.min_comments}` : '');
+        const items = await search<Issue>('issues', q, e.min_reactions !== undefined ? 'reactions' : 'created', per);
+        groups.push(items.map((i) => ({ signal: issueSignal(i, t.id), bucket: 'keyword' as const })));
+      }
+
+      const { kept, total } = capRoundRobin(groups, settings.max_signals_per_target, (x) => x.signal.url);
+      if (total > settings.max_signals_per_target) raw.push(`capped: ${t.id} ${total} -> ${settings.max_signals_per_target}`);
+      for (const x of kept) (x.bucket === 'trending' ? trending : keyword).push(x.signal);
     }
   } catch (e) {
     status = 'FAILED';
@@ -179,12 +202,13 @@ async function main() {
   };
 
   raw.push(`api calls: ${calls}`);
-  const result = writeReport({ source: 'github', runAt, keyword, trending, raw, collection });
+  const input = { source: 'github' as const, runAt, keyword, trending, raw, collection, watchTargetsVersion };
+  const result = writeReport(input);
   if (!result.written) {
     console.error(`[github] collection ${status} — raw log:`);
     for (const msg of raw) console.error(`  ${msg}`);
   }
-  const econResult = writeEconomicReport({ source: 'github', runAt, keyword, trending, raw, collection }, targets);
+  const econResult = writeEconomicReport(input, economicKeywords);
   if (econResult.written) {
     console.log(`[github] economic: ${econResult.path} — ${econResult.keywordCount} signals`);
   } else {

@@ -1,6 +1,6 @@
-import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { ROOT, type CollectionResult, type CollectionStatus, type Target } from '../collectors/common';
+import { ROOT, type CollectionResult, type CollectionStatus } from '../collectors/common';
 
 export type Source = 'github' | 'hackernews' | 'stackoverflow';
 
@@ -22,6 +22,8 @@ export interface ReportInput {
   trending: Signal[];
   raw: string[];
   collection: CollectionResult;
+  /** watch_targets_version from config/watch-targets.yaml ('unknown' if the config failed to load). */
+  watchTargetsVersion: string;
 }
 
 export interface ReportResult {
@@ -33,7 +35,8 @@ export interface ReportResult {
   written: boolean;
 }
 
-const REPORTS_DIR = join(ROOT, 'data', 'reports');
+// OSS_RADAR_REPORTS_DIR lets a smoke test write to (and diff against) a scratch copy instead of data/reports/.
+const REPORTS_DIR = process.env.OSS_RADAR_REPORTS_DIR || join(ROOT, 'data', 'reports');
 const SIGNAL_SECTIONS = new Set(['NEW SIGNALS', 'TRENDING', 'RECURRING']);
 
 function stamp(d: Date): string {
@@ -78,7 +81,8 @@ interface PastReport {
 function parseReport(text: string): Map<string, Record<string, number>> {
   const out = new Map<string, Record<string, number>>();
   let section = '';
-  for (const line of text.split('\n')) {
+  // CRLF-tolerant: a Windows checkout (autocrlf) turns old reports into CRLF, where `.` cannot match the trailing \r.
+  for (const line of text.split(/\r?\n/)) {
     const h = line.match(/^## (.+)$/);
     if (h) {
       section = h[1]!.trim().split(' (')[0]!.split(' — ')[0]!;
@@ -124,12 +128,6 @@ function collectorVersion(): string {
   } catch { return 'unknown'; }
 }
 
-function watchTargetsVersion(): string {
-  try {
-    return statSync(join(ROOT, 'config', 'watch-targets.yaml')).mtime.toISOString().slice(0, 10);
-  } catch { return 'unknown'; }
-}
-
 export function writeReport(input: ReportInput): ReportResult {
   const st = stamp(input.runAt);
   const baseFileName = `${st}-${input.source}.md`;
@@ -162,7 +160,7 @@ export function writeReport(input: ReportInput): ReportResult {
   out.push(`signals_found: ${keyword.length + trending.length}`);
   out.push(`pages_requested: ${input.collection.pages_requested}`);
   out.push(`pages_succeeded: ${input.collection.pages_succeeded}`);
-  out.push(`watch_targets_version: ${watchTargetsVersion()}`);
+  out.push(`watch_targets_version: ${input.watchTargetsVersion}`);
   out.push(`collector_version: ${collectorVersion()}`);
   out.push('```');
   out.push('');
@@ -299,16 +297,30 @@ interface EconomicMatch {
   amount_type?: string;
 }
 
-function findEconomicMatches(signals: Signal[], targets: Target[]): EconomicMatch[] {
-  const allKeywords = new Map<string, string[]>();
-  for (const t of targets) {
-    for (const [category, keywords] of Object.entries(t.economic_keywords ?? {})) {
-      const existing = allKeywords.get(category) ?? [];
-      for (const kw of keywords) {
-        if (!existing.includes(kw.toLowerCase())) existing.push(kw.toLowerCase());
-      }
-      allKeywords.set(category, existing);
+/** Whole-word, case-insensitive matcher (D5): "grant" must not match "grantees". Spaces in a keyword match any run of whitespace or hyphens ("open core" = "open-core"); the last word may take a plural s/es. */
+function keywordRegex(keyword: string): RegExp {
+  const body = keyword
+    .trim()
+    .split(/\s+/)
+    .map((w) => [...w].map((c) => ('^$.*+?()[]{}|/'.includes(c) ? `\\${c}` : c)).join(''))
+    .join('[\\s-]+');
+  // Optional plural on the last word ("price increase" = "Price Increases"). Not "-ies": "bounty" does not match "bounties".
+  return new RegExp(`(?<![\\p{L}\\p{N}_])${body}(?:e?s)?(?![\\p{L}\\p{N}_])`, 'iu');
+}
+
+/** The keyword list is global (not per target) and is read from config `economic_keywords`, in config order. */
+function findEconomicMatches(signals: Signal[], economicKeywords: Record<string, string[]>): EconomicMatch[] {
+  const allKeywords = new Map<string, Array<{ keyword: string; re: RegExp }>>();
+  for (const [category, keywords] of Object.entries(economicKeywords)) {
+    const seen = new Set<string>();
+    const compiled: Array<{ keyword: string; re: RegExp }> = [];
+    for (const kw of keywords) {
+      const k = kw.trim().toLowerCase();
+      if (seen.has(k)) continue;
+      seen.add(k);
+      compiled.push({ keyword: k, re: keywordRegex(k) });
     }
+    allKeywords.set(category, compiled);
   }
 
   const matches: EconomicMatch[] = [];
@@ -316,8 +328,8 @@ function findEconomicMatches(signals: Signal[], targets: Target[]): EconomicMatc
     const text = `${s.title} ${s.context}`.toLowerCase();
     const matchedCategories = new Map<string, string[]>();
 
-    for (const [category, keywords] of allKeywords) {
-      const matched = keywords.filter((kw) => text.includes(kw));
+    for (const [category, compiled] of allKeywords) {
+      const matched = compiled.filter(({ re }) => re.test(text)).map(({ keyword }) => keyword);
       if (matched.length > 0) matchedCategories.set(category, matched);
     }
 
@@ -356,25 +368,59 @@ function findEconomicMatches(signals: Signal[], targets: Target[]): EconomicMatc
 }
 
 function economicSignalLine(m: EconomicMatch): string {
-  const perField = Object.entries(m.per_field_tiers)
+  const amountStr = m.amount_type ? ` | amount_type: ${m.amount_type}` : '';
+  return `- ${m.signal_type} | ${m.evidence_tier} | ${perFieldText(m)} | "${m.signal.title}" | ${m.signal.date} | matched: ${matchedText(m)}${amountStr} | ${m.signal.url}`;
+}
+
+/** url -> stamps of the previous economic reports of this source that listed it (new-format and old-format files alike). */
+function loadEconomicHistory(source: Source, currentFile: string): Map<string, string[]> {
+  const re = new RegExp(`^(\\d{4}-\\d{2}-\\d{2}-\\d{2})-${source}-economic(-rerun-\\d+)?\\.md$`);
+  const seen = new Map<string, string[]>();
+  let files: string[] = [];
+  try {
+    files = readdirSync(REPORTS_DIR);
+  } catch {
+    return seen;
+  }
+  for (const f of files.filter((n) => re.test(n) && n !== currentFile).sort()) {
+    const stampOf = f.match(re)![1]!;
+    const urls = new Set<string>();
+    for (const line of readFileSync(join(REPORTS_DIR, f), 'utf8').split(/\r?\n/)) {
+      const url = line.match(/^- [A-Z_]+ \| E\d \|.*\| (https?:\/\/\S+)\s*$/)?.[1];
+      if (url) urls.add(url);
+    }
+    for (const url of urls) seen.set(url, [...(seen.get(url) ?? []), stampOf]);
+  }
+  return seen;
+}
+
+function perFieldText(m: EconomicMatch): string {
+  return Object.entries(m.per_field_tiers)
     .map(([k, v]) => `${k}: ${v}`)
     .join(' · ');
-  const matchedKws = [...m.matched_categories.values()]
+}
+
+function matchedText(m: EconomicMatch): string {
+  return [...m.matched_categories.values()]
     .flat()
     .map((k) => `"${k}"`)
     .join(', ');
-  const amountStr = m.amount_type ? ` | amount_type: ${m.amount_type}` : '';
-  return `- ${m.signal_type} | ${m.evidence_tier} | ${perField} | "${m.signal.title}" | ${m.signal.date} | matched: ${matchedKws}${amountStr} | ${m.signal.url}`;
 }
 
-export function writeEconomicReport(input: ReportInput, targets: Target[]): ReportResult {
+export function writeEconomicReport(input: ReportInput, economicKeywords: Record<string, string[]>): ReportResult {
   const st = stamp(input.runAt);
   const baseFileName = `${st}-${input.source}-economic.md`;
   const basePath = join(REPORTS_DIR, baseFileName);
   const path = safeFilename(basePath);
+  const actualFileName = path.split(/[/\\]/).pop()!;
 
   const allSignals = dedupe([...input.keyword, ...input.trending]);
-  const matches = findEconomicMatches(allSignals, targets);
+  const matches = findEconomicMatches(allSignals, economicKeywords);
+
+  // Same URL already listed in an earlier economic report of this source -> RECURRING (one line, no context).
+  const history = loadEconomicHistory(input.source, actualFileName);
+  const fresh = matches.filter((m) => !history.has(m.signal.url));
+  const recurring = matches.filter((m) => history.has(m.signal.url));
 
   const hasSignals = matches.length > 0;
   if (!hasSignals && input.collection.status !== 'SUCCESS') {
@@ -389,15 +435,18 @@ export function writeEconomicReport(input: ReportInput, targets: Target[]): Repo
   out.push(`source: ${input.source}`);
   out.push(`collection_status: ${input.collection.status}`);
   out.push(`economic_signals_found: ${matches.length}`);
+  out.push(`economic_signals_new: ${fresh.length}`);
+  out.push(`economic_signals_recurring: ${recurring.length}`);
   out.push(`observation_signals_scanned: ${allSignals.length}`);
   out.push(`pages_requested: ${input.collection.pages_requested}`);
   out.push(`pages_succeeded: ${input.collection.pages_succeeded}`);
-  out.push(`watch_targets_version: ${watchTargetsVersion()}`);
+  out.push(`watch_targets_version: ${input.watchTargetsVersion}`);
   out.push(`collector_version: ${collectorVersion()}`);
   out.push('```');
   out.push('');
   out.push(
-    `run: ${input.runAt.toISOString()} · economic signals: ${matches.length} · observation signals scanned: ${allSignals.length}`,
+    `run: ${input.runAt.toISOString()} · economic signals: ${matches.length} (new: ${fresh.length}, recurring: ${recurring.length}) · ` +
+      `observation signals scanned: ${allSignals.length} · previous economic ${input.source} reports: ${new Set([...history.values()].flat()).size}`,
   );
   out.push('');
 
@@ -406,9 +455,12 @@ export function writeEconomicReport(input: ReportInput, targets: Target[]): Repo
   if (matches.length === 0) {
     out.push('No economic signals found in this window.');
     out.push('');
+  } else if (fresh.length === 0) {
+    out.push('No new economic signals in this window (all matches already listed in earlier economic reports — see RECURRING).');
+    out.push('');
   } else {
     const byType = new Map<string, EconomicMatch[]>();
-    for (const m of matches) {
+    for (const m of fresh) {
       if (!byType.has(m.signal_type)) byType.set(m.signal_type, []);
       byType.get(m.signal_type)!.push(m);
     }
@@ -422,6 +474,18 @@ export function writeEconomicReport(input: ReportInput, targets: Target[]): Repo
     }
   }
 
+  out.push('## OBSERVED — RECURRING (listed in earlier economic reports of this source)');
+  if (!recurring.length) out.push(history.size ? '- No signals found in this window' : '- no previous economic reports of this source');
+  for (const m of recurring) {
+    const stamps = history.get(m.signal.url)!;
+    const amountStr = m.amount_type ? ` | amount_type: ${m.amount_type}` : '';
+    out.push(
+      `- ${m.signal_type} | ${m.evidence_tier} | ${perFieldText(m)} | "${m.signal.title}" | ${m.signal.date} | ` +
+        `matched: ${matchedText(m)}${amountStr} | occurrences: ${stamps.length + 1} | first seen: ${stampToLabel(stamps[0]!)} | ${m.signal.url}`,
+    );
+  }
+  out.push('');
+
   out.push('## MODELED');
   out.push('No modeled signals in collection output.');
   out.push('');
@@ -434,7 +498,7 @@ export function writeEconomicReport(input: ReportInput, targets: Target[]): Repo
   mkdirSync(REPORTS_DIR, { recursive: true });
   writeFileSync(path, out.join('\n'), 'utf8');
 
-  return { path, keywordCount: matches.length, trendingCount: 0, newCount: matches.length, recurringCount: 0, written: true };
+  return { path, keywordCount: matches.length, trendingCount: 0, newCount: fresh.length, recurringCount: recurring.length, written: true };
 }
 
 export function finish(source: Source, r: ReportResult, status: CollectionStatus): void {

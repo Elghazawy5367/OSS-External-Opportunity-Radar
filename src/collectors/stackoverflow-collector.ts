@@ -1,4 +1,4 @@
-import { clean, daysAgo, decodeEntities, getJson, isoDay, loadConfig, sleep, type CollectionResult, type CollectionStatus, type Target } from './common';
+import { capRoundRobin, clean, daysAgo, decodeEntities, getJson, isoDay, loadConfig, sleep, type CollectionResult, type CollectionStatus, type Target } from './common';
 import { finish, writeReport, writeEconomicReport, type Signal } from '../formatters/report-writer';
 
 interface Question {
@@ -84,51 +84,66 @@ async function main() {
   let status: CollectionStatus = 'SUCCESS';
   let errorClass: string | undefined;
   let targets: Target[] = [];
+  let economicKeywords: Record<string, string[]> = {};
+  let watchTargetsVersion = 'unknown';
 
   try {
     const config = loadConfig();
     targets = config.targets;
+    economicKeywords = config.economic_keywords;
+    watchTargetsVersion = config.watch_targets_version;
     const settings = config.settings;
     const per = String(settings.max_results_per_query);
     const fromdate = String(Math.floor(daysAgo(settings.days_back_stackoverflow, runAt).getTime() / 1000));
-    raw.push(`auth: ${key ? 'STACKEXCHANGE_KEY present' : 'no key (300 req/day per IP)'} · unanswered window: after ${isoDay(Number(fromdate) * 1000)}`);
+    raw.push(
+      `auth: ${key ? 'STACKEXCHANGE_KEY present' : 'no key (300 req/day per IP)'} · config v${watchTargetsVersion} · ` +
+        `unanswered window: created after ${isoDay(Number(fromdate) * 1000)}`,
+    );
 
-    const tagOwners = new Map<string, string[]>();
-    for (const t of targets) {
-      for (const tag of t.sources.stackoverflow_tags ?? []) tagOwners.set(tag, [...(tagOwners.get(tag) ?? []), t.id]);
+    const tags = [...new Set(targets.flatMap((t) => (t.sources.stackoverflow?.tags ?? []).map((e) => e.tag)))];
+    if (tags.length) {
+      const info = await se<TagInfo>(`/tags/${tags.map(encodeURIComponent).join(';')}/info`, { pagesize: '100' }, 'tag check');
+      const found = new Set(info.map((i) => i.name));
+      const missing = tags.filter((t) => !found.has(t));
+      const extra = info.filter((i) => !tags.includes(i.name)).map((i) => `${i.name} (${i.count})`);
+      raw.push(`tags found: ${info.map((i) => `${i.name} (${i.count})`).join(', ')}`);
+      if (missing.length) raw.push(`configured tags not returned by /tags/info (absent or synonym): ${missing.join(', ')}`);
+      if (extra.length) raw.push(`tag names returned that are not in config (likely synonym masters): ${extra.join(', ')}`);
     }
-    const tags = [...tagOwners.keys()];
 
-    const info = await se<TagInfo>(`/tags/${tags.map(encodeURIComponent).join(';')}/info`, { pagesize: '100' }, 'tag check');
-    const found = new Set(info.map((i) => i.name));
-    const missing = tags.filter((t) => !found.has(t));
-    const extra = info.filter((i) => !tags.includes(i.name)).map((i) => `${i.name} (${i.count})`);
-    raw.push(`tags found: ${info.map((i) => `${i.name} (${i.count})`).join(', ')}`);
-    if (missing.length) raw.push(`configured tags not returned by /tags/info (absent or synonym): ${missing.join(', ')}`);
-    if (extra.length) raw.push(`tag names returned that are not in config (likely synonym masters): ${extra.join(', ')}`);
-
-    for (const [tag, owners] of tagOwners) {
-      const unanswered = await se<Question>(
-        '/questions/unanswered',
-        { tagged: tag, fromdate, sort: 'creation', order: 'desc', pagesize: per },
-        `unanswered [${tag}]`,
-      );
-      const bounties = await se<Question>(
-        '/questions/featured',
-        { tagged: tag, sort: 'creation', order: 'desc', pagesize: per },
-        `open bounties [${tag}]`,
-      );
-      for (const owner of owners) {
-        for (const q of unanswered) keyword.push(questionSignal(q, owner, 'unanswered'));
-        for (const q of bounties) keyword.push(questionSignal(q, owner, 'bounty'));
+    for (const t of targets) {
+      const so = t.sources.stackoverflow;
+      if (!so) continue;
+      const groups: Signal[][] = [];
+      for (const e of so.tags ?? []) {
+        if (!e.passes.includes('unanswered')) continue;
+        const unanswered = await se<Question>(
+          '/questions/unanswered',
+          { tagged: e.tag, fromdate, sort: 'creation', order: 'desc', pagesize: per },
+          `${t.id} unanswered [${e.tag}]`,
+        );
+        groups.push(unanswered.map((q) => questionSignal(q, t.id, 'unanswered')));
       }
+      if (so.featured_sitewide) {
+        const bounties = await se<Question>(
+          '/questions/featured',
+          { sort: 'creation', order: 'desc', pagesize: per },
+          `${t.id} open bounties [site-wide]`,
+        );
+        groups.push(bounties.map((q) => questionSignal(q, t.id, 'bounty')));
+      }
+      const { kept, total } = capRoundRobin(groups, settings.max_signals_per_target, (s) => s.url);
+      if (total > settings.max_signals_per_target) raw.push(`capped: ${t.id} ${total} -> ${settings.max_signals_per_target}`);
+      keyword.push(...kept);
     }
 
     const tr = settings.trending;
     if (tr?.enabled) {
       const sort = tr.stackoverflow.use_hot_endpoint ? 'hot' : 'activity';
+      // Hot pass runs only for tags whose `passes` include "hot" (T1), not for every configured tag.
+      const hotTags = [...new Set(targets.flatMap((t) => (t.sources.stackoverflow?.tags ?? []).filter((e) => e.passes.includes('hot')).map((e) => e.tag)))];
       const perTag: Question[][] = [];
-      for (const tag of tags) {
+      for (const tag of hotTags) {
         perTag.push(
           await se<Question>('/questions', { tagged: tag, sort, order: 'desc', pagesize: String(tr.stackoverflow.max_results) }, `${sort} [${tag}]`),
         );
@@ -139,7 +154,7 @@ async function main() {
           const q = list[i];
           if (!q || seen.has(q.question_id) || trending.length >= tr.stackoverflow.max_results) continue;
           seen.add(q.question_id);
-          trending.push(questionSignal(q, `trending:${tags[j]}`, sort));
+          trending.push(questionSignal(q, `trending:${hotTags[j]}`, sort));
         }
       }
     } else {
@@ -167,12 +182,13 @@ async function main() {
   };
 
   raw.push(`api calls: ${calls} · quota remaining: ${quota || 'unknown'}`);
-  const result = writeReport({ source: 'stackoverflow', runAt, keyword, trending, raw, collection });
+  const input = { source: 'stackoverflow' as const, runAt, keyword, trending, raw, collection, watchTargetsVersion };
+  const result = writeReport(input);
   if (!result.written) {
     console.error(`[stackoverflow] collection ${status} — raw log:`);
     for (const msg of raw) console.error(`  ${msg}`);
   }
-  const econResult = writeEconomicReport({ source: 'stackoverflow', runAt, keyword, trending, raw, collection }, targets);
+  const econResult = writeEconomicReport(input, economicKeywords);
   if (econResult.written) {
     console.log(`[stackoverflow] economic: ${econResult.path} — ${econResult.keywordCount} signals`);
   } else {

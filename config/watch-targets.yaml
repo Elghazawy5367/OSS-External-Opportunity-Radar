@@ -1,406 +1,235 @@
-# OSS-RADAR — Watch Targets (REVISED FINAL)
-# Created: 2026-09-23 | Revised: 2026-09-23 (Ahmed deep-vision + audit ritual)
-# Status: APPROVED BY AHMED — Stage 2 implements as config/watch-targets.yaml
-# Sources: github (REST v3) | hackernews (Algolia) | stackoverflow (Stack Exchange API)
-# Reddit removed — API closed May 2026 (WL-R01, DEC-R02)
+# OSS-RADAR — Watch Targets v2.0 (Session 12 redesign)
+# Written: 2026-10-07 | Approved targets: Ahmed 2026-09-28 ("APPROVE 5 TARGETS") | Replaces: v1 (4 targets)
+# v1 kept for diff: config/watch-targets.v1-backup.yaml (byte-identical to the 2026-09-28 file)
+# Design source: D:\OSS-RADAR\REFERANCE\ (Ahmed's cold-start funnel). Governance: DEC-R07 is logged in Phase 7.
 #
-# STRUCTURE: 4 targets covering distinct layers of the income stack + OSS hypothesis.
-#   Target 1 — AI Products & Side Income (what to build)
-#   Target 2 — Digital Product & Creator Platforms (where to sell)
-#   Target 3 — No-Code & Automation for Non-Technical Builders (how to build)
-#   Target 4 — OSS Sustainability & Funding Gaps (hypothesis test)
-# Each collector reads this file and uses the relevant fields:
-#   github-collector  → github_topics, github_search_queries
-#   hn-collector      → keywords (searched in HN Algolia)
-#   stackoverflow-collector → stackoverflow_tags
-# TRENDING: each collector also runs a trending/velocity pass per the settings
-#   section — this catches rising signals regardless of keywords.
+# EVIDENCE RULE: every query below was probed on 2026-10-07 (data/checkpoints/probe-session12.md; raw JSON in
+#   data/checkpoints/probe-session12-raw/). Nothing here is a guess. Counts in comments are those probe counts and will drift.
+#   Floors/windows are exactly the probed combinations unless a comment says "bounded".
+#
+# !! SCHEMA CHANGE: this file uses a NEW schema (per-query objects instead of bare strings). The v1 collectors CANNOT read
+#   it. Phase 4 updates common.ts + the three collectors + report-writer. Do NOT push this file without the Phase 4 code.
+#
+# COLLECTION STAYS SEPARATE PER TARGET. Cross-target linking (T5 -> T2 -> T1 -> T3 -> T4) happens only in interpretation
+#   sessions (DEC-R03). Nothing here scores, ranks or judges. Caps truncate in source order only (see settings).
+
+watch_targets_version: "2.0"       # read by the report-writer header (replaces the file-mtime stand-in; Phase 4)
+watch_targets_date: "2026-10-07"
 
 targets:
-  # ─── TARGET 1: AI Products & Side Income ───────────────────────────────
-  # LAYER: What to build
-  # Watches people building and shipping AI-powered products for money.
-  # HN = revenue stories + "Show HN" launches. GitHub = tools + templates.
-  # SO = API integration pain.
-  - id: ai-income
-    name: "AI Products & Side Income"
+
+  # ─── T1 rising-oss ─ funnel step: SUPPLY SHIFT ─────────────────────────────────────────────────────────────
+  # What capability just became free/cheap, and is adoption following?
+  # Exclude: developer-only SDKs/libraries with no end user; generic "AI side income" repos.
+  - id: rising-oss
+    name: "Rising OSS / supply shift"
+    funnel_step: supply-shift
     evidence_level: HYPOTHESIS
     sources:
-      github_topics:
-        - saas-boilerplate
-        - ai-tools
-      github_search_queries:
-        - "ai saas starter"
-        - "ai wrapper"
-        - "openai tool"
-        - "langchain template"
-        - "llm app template"
-        - "ai automation tool"
-        - "gpt api tool"
-        - "ai side project revenue"
-      keywords:  # hn-collector — HN-native vocabulary, not hustle-culture
-        - Show HN ai
-        - ai side project
-        - bootstrapped ai
-        - ramen profitable
-        - ai saas revenue
-        - indie hacker ai
-        - solo founder ai
-        - ai wrapper
-        - MRR ai
-        - profitable ai project
-        - ai tool launch
-      stackoverflow_tags:
-        - openai-api
-        - langchain
-        - llm
-        - chatgpt-api
-    economic_keywords:
-      buyer_intent:
-        - looking for ai tool
-        - need ai solution
-        - want to automate
-        - hiring ai developer
-        - budget for ai
-        - pay for ai
-        - willing to pay
-      price_wtp:
-        - per month
-        - per year
-        - pricing
-        - subscription
-        - free tier
-        - paid plan
-        - enterprise plan
-      procurement:
-        - rfp
-        - vendor selection
-        - evaluating tools
-        - procurement
-      commercial_support:
-        - commercial license
-        - enterprise support
-        - managed service
-        - professional services
-        - consulting
-      hiring_labor:
-        - hiring ai engineer
-        - looking for developer
-        - freelance ai
-        - contract developer
-      fee_seller:
-        - api cost
-        - token cost
-        - usage fee
-        - compute cost
-        - inference cost
-      competition:
-        - alternative to
-        - competitor
-        - compared to
-        - switching from
-      commercialization:
-        - monetize
-        - revenue model
-        - business model
-        - go to market
-        - launch pricing
+      github:
+        repo_topics:                    # repositories: topic:X created:>=window stars:>=floor, sorted by stars (D3: per-target)
+          - {topic: self-hosted,         created_within_days: 30, min_stars: 50}    # 46
+          - {topic: mcp-server,          created_within_days: 30, min_stars: 50}    # 25
+          # `ai-agents` (97 @100+★) DROPPED after the Phase 5 smoke test: hits were generic agent tooling / plugins (excluded class).
+          - {topic: workflow-automation, created_within_days: 30, min_stars: 5}     # 18 (50+ floor gave 3)
+        repo_phrases:                   # quoted phrase, name+description ONLY (D1)
+          - {phrase: "open source alternative", in: "name,description", created_within_days: 45, min_stars: 20}  # 11
+          - {phrase: "self-hosted alternative", in: "name,description", created_within_days: 90, min_stars: 5}   # 17 (45d gave 1)
+      hackernews:
+        queries:                        # title-only search (default search also matches story text + URL)
+          - {query: "open source",             tag: show_hn, title_only: true, min_points: 5}   # 32 @30d
+          - {query: "open source alternative", tag: story,   title_only: true, min_points: 5}   # 7 @30d
+          - {query: "self-hosted",             tag: story,   title_only: true, min_points: 5}   # 15 @30d
+      stackoverflow:                    # hot pass only; tags verified, but volume is tiny (docker 19 / 90d, open-source 1 / 90d)
+        tags:
+          - {tag: docker,      passes: [hot]}
+          - {tag: open-source, passes: [hot]}
 
-  # ─── TARGET 2: Digital Product & Creator Platforms ─────────────────────
-  # LAYER: Where to sell
-  # Watches selling infrastructure — platforms, marketplaces, digital delivery.
-  # Highest-value signals: platform shifts (pricing, API changes, new entrants).
-  - id: creator-platforms
-    name: "Digital Product & Creator Platforms"
+  # ─── T2 recurring-pain ─ funnel step: EXISTING DEMAND ──────────────────────────────────────────────────────
+  # What do many unrelated users keep struggling with / working around?
+  # Exclude: zero-engagement issues, internal project chatter.
+  # GITHUB ISSUE QUERIES REMOVED (Ahmed decision 2026-10-08, after the Phase 5 smoke test): the four reaction-floor queries
+  #   ("workaround", "is there a way to", "please add support", label:enhancement) passed the probe on COUNT but only ~2-3 of 40
+  #   hits were business-tool pain; the rest were Dota2/Steam/Codex/VS Code/ollama issues. T2 runs on HN + SO until a better-
+  #   targeted GitHub query (e.g. restricted to business-tool repos) is designed AND probed. Do not re-add unprobed.
+  - id: recurring-pain
+    name: "Recurring pain / workarounds"
+    funnel_step: existing-demand
     evidence_level: HYPOTHESIS
     sources:
-      github_topics:
-        - digital-products
-        - gumroad
-        - course-platform
-        - digital-downloads
-        - stripe
-      github_search_queries:
-        - "gumroad tool"
-        - "lemonsqueezy"
-        - "digital download platform"
-        - "course platform builder"
-        - "membership site tool"
-        - "payhip integration"
-        - "etsy automation"
-        - "print on demand tool"
-        - "selling digital products"
-      keywords:  # hn-collector
-        - gumroad
-        - lemonsqueezy
-        - digital products
-        - creator economy
-        - course creator
-        - selling online
-        - print on demand
-        - Show HN marketplace
-        - bootstrapped marketplace
-        - passive income product
-        - solo founder revenue
-      stackoverflow_tags:
-        - stripe-payments
-        - payment-processing
-        - shopify
-        - webhooks
-    economic_keywords:
-      buyer_intent:
-        - looking for platform
-        - need marketplace
-        - want to sell
-        - buying digital
-        - looking for course platform
-      price_wtp:
-        - pricing
-        - transaction fee
-        - platform fee
-        - revenue share
-        - per sale
-        - monthly plan
-        - payout
-      procurement:
-        - evaluating platforms
-        - comparing platforms
-        - migrating from
-        - switching platform
-      commercial_support:
-        - white label
-        - custom storefront
-        - managed marketplace
-        - reseller
-      hiring_labor:
-        - hiring content creator
-        - freelance designer
-        - looking for seller
-      fee_seller:
-        - seller fee
-        - listing fee
-        - commission
-        - payment processing fee
-        - stripe fee
-      competition:
-        - gumroad vs
-        - alternative to gumroad
-        - alternative to shopify
-        - lemon squeezy vs
-        - compared to
-      commercialization:
-        - monetize content
-        - sell digital products
-        - launch course
-        - creator revenue
-        - passive income
+      hackernews:
+        queries:
+          - {query: "alternative", tag: ask_hn, title_only: true, min_points: 2}    # bounded: 2 @30d/5pts, 17 @90d/2pts
+      stackoverflow:                    # unanswered; no view floor (API cannot sort/filter by views; volume too low to cut further)
+        tags:
+          - {tag: google-apps-script, passes: [unanswered]}
+          - {tag: airtable,           passes: [unanswered]}
+          - {tag: n8n,                passes: [unanswered]}
+          - {tag: zapier,             passes: [unanswered]}
+          - {tag: power-automate,     passes: [unanswered]}
+          - {tag: woocommerce,        passes: [unanswered]}
+          - {tag: shopify,            passes: [unanswered]}
+          - {tag: wordpress,          passes: [unanswered]}
 
-  # ─── TARGET 3: No-Code & Automation for Non-Technical Builders ────────
-  # LAYER: How to build
-  # Watches tools that let non-technical people build and ship products.
-  # SO friction ("how do I make X do Y") maps directly to product gaps.
-  - id: nocode-automation
-    name: "No-Code & Automation for Non-Technical Builders"
+  # ─── T3 last-mile-gaps ─ funnel step: WHAT REMAINS UNSERVED (Ahmed's bilingual edge) ─────────────────────────
+  # Engine built, human layer missing? Kept SEPARATE on purpose: signals will be few. THIN is information.
+  # DESIGN NOTE: GitHub issue search has no repo-stars qualifier, so the "established apps (stars ~1000)" floor cannot be
+  #   expressed. Engagement floors are used instead (Ahmed decision 2026-10-07: engagement floors only).
+  - id: last-mile-gaps
+    name: "Last-mile gaps (RTL / Arabic / docs / install)"
+    funnel_step: unserved-remainder
     evidence_level: HYPOTHESIS
     sources:
-      github_topics:
-        - no-code
-        - low-code
-        - n8n
-        - workflow-automation
-        - airtable
-      github_search_queries:
-        - "no code builder"
-        - "workflow automation"
-        - "api connector"
-        - "form builder no code"
-        - "airtable alternative"
-        - "low code platform"
-        - "automation template"
-        - "no code saas"
-      keywords:  # hn-collector
-        - no-code
-        - low-code
-        - non-technical founder
-        - zapier alternative
-        - make.com
-        - n8n
-        - airtable
-        - without coding
-        - Show HN automation
-        - bootstrapped no-code
-        - solo founder tool
-      stackoverflow_tags:
-        - zapier
-        - n8n
-        - automation
-        - workflow
-        - airtable
-    economic_keywords:
-      buyer_intent:
-        - looking for automation
-        - need no-code tool
-        - want to automate
-        - budget for tool
-        - pay for automation
-      price_wtp:
-        - pricing
-        - free plan
-        - paid plan
-        - per workflow
-        - per task
-        - subscription
-        - usage limit
-      procurement:
-        - evaluating tools
-        - comparing tools
-        - enterprise plan
-        - team plan
-      commercial_support:
-        - managed hosting
-        - enterprise support
-        - custom integration
-        - professional services
-      hiring_labor:
-        - hiring automation expert
-        - freelance zapier
-        - no-code developer
-        - automation consultant
-      fee_seller:
-        - platform fee
-        - usage cost
-        - overage charge
-        - per execution
-      competition:
-        - zapier vs
-        - n8n vs
-        - make vs
-        - alternative to zapier
-        - alternative to make
-        - switching from
-      commercialization:
-        - sell automation
-        - automation agency
-        - template marketplace
-        - workflow template
-        - monetize automation
+      github:
+        repo_topics:
+          - {topic: arabic, pushed_within_days: 30, min_stars: 50}                  # 14 (200+ floor gave 4). `topic:rtl` DROPPED: = hardware RTL
+        issue_queries:
+          - {phrase: "RTL support",        in: "title,body", state: open, created_within_days: 30, min_comments: 3}   # 29
+          - {phrase: "arabic translation", in: "title,body", state: open, created_within_days: 30}                    # 159 (comments>=3 gave 10)
+          - {phrase: "arabic",             in: "title,body", state: open, created_within_days: 30, min_comments: 3}   # 232 (top of range)
+      hackernews:                       # THIN: only produces volume on a wide window
+        queries:
+          - {query: "RTL",    tag: story, title_only: true, min_points: 2}          # bounded: 0 @30d/5pts, 11 @90d/2pts
+          - {query: "Arabic", tag: story, title_only: true, min_points: 2}          # bounded: 0 @30d/5pts, 8 @90d/2pts
+      stackoverflow:
+        tags:
+          - {tag: right-to-left,         passes: [unanswered]}
+          - {tag: arabic,                passes: [unanswered]}
+          - {tag: localization,          passes: [unanswered]}
+          - {tag: internationalization,  passes: [unanswered]}
 
-  # ─── TARGET 4: OSS Sustainability & Funding Gaps ──────────────────────
-  # LAYER: Hypothesis test
-  # Tests whether OSS funding/abandonment patterns accumulate into something
-  # a single-pass search misses. Riskiest target — if it produces nothing
-  # useful by the §9B gate, it's evidence for NARROW or TERMINATE.
-  - id: oss-sustainability
-    name: "OSS Sustainability & Funding Gaps"
+  # ─── T4 entry-rails ─ funnel step: ACCESSIBLE ENTRY + TRUST SUBSTITUTE ────────────────────────────────────
+  # Where can an unknown person list, get found, get paid via platform-owned rails WITHOUT code?
+  # (Chain OSS: real rails like Algora/Opire need engineering skill.) GitHub bounty issue queries were probed and DROPPED
+  #   (label:bounty = 391 results but toy/test issues). Dead topics dropped: n8n-community-node, raycast-extension,
+  #   figma-plugin, shopify-app (topics exist; almost nothing new + starred in 30d).
+  - id: entry-rails
+    name: "Entry rails / marketplaces / plugin ecosystems"
+    funnel_step: accessible-entry
     evidence_level: HYPOTHESIS
     sources:
-      github_topics:
-        - open-source
-        - funding
-        - sponsorship
-        - bounties
-        - maintainer
-      github_search_queries:
-        - "looking for maintainer"
-        - "seeking sponsorship"
-        - "abandoned repository"
-        - "open source bounty"
-        - "github sponsors"
-        - "bus factor"
-        - "help wanted stale"
-      keywords:  # hn-collector
-        - open source funding
-        - maintainer burnout
-        - open source sustainability
-        - github sponsors
-        - fork because abandoned
-        - bus factor
-        - Show HN open source
-        - open source business model
-      stackoverflow_tags:
-        - open-source
-        - github
-        - licensing
-    economic_keywords:
-      buyer_intent:
-        - looking for maintainer
-        - need open source support
-        - sponsor
-        - funding
-        - donate
-        - grant
-      price_wtp:
-        - sponsorship tier
-        - funding goal
-        - bounty
-        - reward
-        - per month sponsor
-      procurement:
-        - open source procurement
-        - license compliance
-        - vendor support
-        - support contract
-      commercial_support:
-        - commercial support
-        - enterprise edition
-        - paid support
-        - dual license
-        - open core
-      hiring_labor:
-        - hiring maintainer
-        - paid contributor
-        - looking for contributors
-        - contract maintainer
-      fee_seller:
-        - license fee
-        - support fee
-        - hosting cost
-        - infrastructure cost
-      competition:
-        - fork because
-        - alternative to
-        - replacing
-        - migrating away
-      commercialization:
-        - open source business
-        - sustainability model
-        - open source revenue
-        - open core model
-        - freemium open source
+      github:
+        repo_topics:
+          - {topic: chrome-extension, created_within_days: 30, min_stars: 20}       # 23
+          - {topic: obsidian-plugin,  created_within_days: 30, min_stars: 5}        # 14 (20+ floor gave 5)
+          - {topic: wordpress-plugin, created_within_days: 30, min_stars: 5}        # 7
+      hackernews:
+        queries:
+          - {query: "plugin",      tag: show_hn, title_only: true, min_points: 2}   # bounded: 4 @30d/5pts, 31 @90d/2pts
+          - {query: "marketplace", tag: show_hn, title_only: true, min_points: 2}   # bounded: 0 @30d/5pts, 7 @90d/2pts
+      stackoverflow:
+        featured_sitewide: true         # open bounties, site-wide (4 on 2026-10-07; 0 per tag). No tags.
 
-# ─── GLOBAL SETTINGS ──────────────────────────────────────────────────────
+  # ─── T5 money-movement ─ funnel step: EXISTING ECONOMIC ACTIVITY + DISRUPTION ─────────────────────────────
+  # Where is money changing hands / shifting? price increases, license changes, new hosted tiers, shutdowns, acquisitions.
+  # HackerNews ONLY (Ahmed decision 2026-10-07). GitHub T5 queries were probed and DROPPED (all below 5 or off-topic;
+  #   "fork of" optional-only and not adopted). SO: skip.
+  # Phase 5 smoke test (2026-10-07), relevance per query: "price increase" 5/5 on-topic; "shutting down" ~9/12 (air travel and a
+  #   museum are noise; one event, Pulley, appears 5 times); "sunset" 1/3, "open core" 0/3 (plain AND-of-words false positives) and
+  #   "acquired" (1 weak hit) were REMOVED (Ahmed decision 2026-10-08).
+  - id: money-movement
+    name: "Money movement / pricing & licence shifts"
+    funnel_step: economic-activity
+    evidence_level: HYPOTHESIS
+    sources:
+      hackernews:
+        queries:
+          - {query: "price increase", tag: story, title_only: true, min_points: 2}  # bounded: 2 @30d/5pts, 22 @90d/2pts
+          - {query: "shutting down",  tag: story, title_only: true, min_points: 2}  # some noise. bounded: 6 @30d/5pts, 37 @90d/2pts
+
+# ─── ECONOMIC KEYWORDS (global, D5) ─────────────────────────────────────────────────────────────────────────────
+# ONE tight list, not per target. v1 pooled 142 keywords across 4 targets; only 28 ever matched in 89 reports and four
+# generic words produced most lines. Removed: "alternative to" (30% of all v1 lines; now the T1 observation query itself, so it
+# would be tautological), bare "subscription" (14%), "sponsor"/"funding"/"grant"/"reward" (matched FUNDING.yml housekeeping and
+# OAuth "grants"), "pricing" bare, "consulting", "competitor", "replacing", "vs", "cost" alone.
+# MATCHING (Phase 4): case-insensitive WORD-BOUNDARY match against title + context; no substring matching.
+# Category names are unchanged so CATEGORY_SIGNAL_TYPE / CATEGORY_FIELD_TIER in report-writer.ts still apply.
+economic_keywords:
+  buyer_intent:
+    - willing to pay
+    - would pay for
+    - looking for a tool
+    - looking for an alternative
+    - budget for
+  price_wtp:
+    - price increase
+    - pricing change
+    - new pricing
+    - pricing page
+    - per month
+    - per year
+    - per seat
+    - free tier
+    - paid plan
+    - enterprise plan
+    - bounty
+    - payout
+    - revenue share
+  procurement:
+    - rfp
+    - request for proposal
+    - vendor selection
+    - procurement
+  commercial_support:
+    - commercial license
+    - enterprise support
+    - enterprise edition
+    - paid support
+    - support contract
+    - dual license
+    - managed hosting
+    - managed service
+  hiring_labor:
+    - looking for maintainer
+    - paid contributor
+    - contract maintainer
+    - contract developer
+  fee_seller:
+    - platform fee
+    - listing fee
+    - transaction fee
+    - seller fee
+    - license fee
+    - overage
+  competition:
+    - switching from
+    - migrating from
+    - migrating away from
+  commercialization:
+    - monetize
+    - monetization
+    - business model
+    - open core
+    - freemium
+    - paid tier
+    - hosted version
+    - relicense
+    - license change
+    - source available
+    - acquired by
+
+# ─── GLOBAL SETTINGS ────────────────────────────────────────────────────────────────────────────────────────────
 settings:
-  max_results_per_query: 30       # per API call, not total
-  days_back_github: 7             # search window for issue/PR queries
-  days_back_hn: 3                 # HN stories age limit (Algolia)
-  days_back_stackoverflow: 30     # widened from 7 — SO volume is very low in 2026
-  min_stars_fork_watch: 50        # ignore forks of tiny repos
-  min_score_hn: 5                 # minimum HN points to include
+  max_results_per_query: 30         # per API call, not total
+  max_signals_per_target: 40        # D4: per target, per source, per run. Applied round-robin across that target's queries in
+                                    # config order, so no single query fills the cap. Truncation is by source sort order only
+                                    # (stars / reactions / date as returned) — no scoring. Every truncation is logged to
+                                    # RAW / UNCLASSIFIED ("capped: <target> <n> -> <cap>").
+  days_back_hn: 30                  # HN keyword window (was 3). Per-query min_points overrides min_score_hn.
+  days_back_stackoverflow: 90       # was 30; SO volume is ~0-7 questions / tag / 30d (probe 2026-10-07)
+  min_score_hn: 5                   # default when a query omits min_points
+  # GitHub windows and floors are PER QUERY above (days_back_github and min_stars_fork_watch were removed: each query states its own).
 
-  # ─── TRENDING / VELOCITY PASS ─────────────────────────────────────────
-  # Each collector ALSO runs a trending pass independent of keyword targets.
-  # This catches rising signals that don't match any target's keywords.
+  # TRENDING / VELOCITY. GitHub's trending pass is now the per-target `repo_topics` above (D3), so it is no longer a global list.
   trending:
     enabled: true
-    github:
-      # GitHub has no official trending API. Use search sorted by stars
-      # with created:>YYYY-MM-DD to find repos gaining velocity.
-      sort_by: stars               # sort search results by star count
-      created_within_days: 30      # only repos created in last 30 days
-      min_stars: 100               # minimum stars to surface
-      topics_filter:               # limit trending to these broad areas
-        - ai
-        - saas
-        - no-code
-        - automation
-        - developer-tools
     hackernews:
-      # HN Algolia: search by points, sorted by date, no keyword filter.
-      # Surfaces the hottest stories in the Radar's observation window.
-      min_points: 50               # only stories with 50+ points
-      max_results: 20              # top 20 trending stories per run
+      # HN Algolia, no keyword filter: hottest stories in a short window. Deliberately UNFILTERED and global (not a target);
+      # its own window so the 30-day keyword window above does not change it.
+      days_back: 3
+      min_points: 50
+      max_results: 20
     stackoverflow:
-      # Stack Exchange API: /questions?order=desc&sort=hot&tagged=...
-      # Surfaces hot questions across the target tags.
-      use_hot_endpoint: true       # hit /questions/hot instead of /questions
-      max_results: 20              # top 20 hot questions per run
+      # /questions sort=hot for every tag whose `passes` includes `hot` (T1 only).
+      use_hot_endpoint: true
+      max_results: 20

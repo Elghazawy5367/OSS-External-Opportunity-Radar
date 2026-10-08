@@ -1,0 +1,406 @@
+# OSS-RADAR — Watch Targets (REVISED FINAL)
+# Created: 2026-09-23 | Revised: 2026-09-23 (Ahmed deep-vision + audit ritual)
+# Status: APPROVED BY AHMED — Stage 2 implements as config/watch-targets.yaml
+# Sources: github (REST v3) | hackernews (Algolia) | stackoverflow (Stack Exchange API)
+# Reddit removed — API closed May 2026 (WL-R01, DEC-R02)
+#
+# STRUCTURE: 4 targets covering distinct layers of the income stack + OSS hypothesis.
+#   Target 1 — AI Products & Side Income (what to build)
+#   Target 2 — Digital Product & Creator Platforms (where to sell)
+#   Target 3 — No-Code & Automation for Non-Technical Builders (how to build)
+#   Target 4 — OSS Sustainability & Funding Gaps (hypothesis test)
+# Each collector reads this file and uses the relevant fields:
+#   github-collector  → github_topics, github_search_queries
+#   hn-collector      → keywords (searched in HN Algolia)
+#   stackoverflow-collector → stackoverflow_tags
+# TRENDING: each collector also runs a trending/velocity pass per the settings
+#   section — this catches rising signals regardless of keywords.
+
+targets:
+  # ─── TARGET 1: AI Products & Side Income ───────────────────────────────
+  # LAYER: What to build
+  # Watches people building and shipping AI-powered products for money.
+  # HN = revenue stories + "Show HN" launches. GitHub = tools + templates.
+  # SO = API integration pain.
+  - id: ai-income
+    name: "AI Products & Side Income"
+    evidence_level: HYPOTHESIS
+    sources:
+      github_topics:
+        - saas-boilerplate
+        - ai-tools
+      github_search_queries:
+        - "ai saas starter"
+        - "ai wrapper"
+        - "openai tool"
+        - "langchain template"
+        - "llm app template"
+        - "ai automation tool"
+        - "gpt api tool"
+        - "ai side project revenue"
+      keywords:  # hn-collector — HN-native vocabulary, not hustle-culture
+        - Show HN ai
+        - ai side project
+        - bootstrapped ai
+        - ramen profitable
+        - ai saas revenue
+        - indie hacker ai
+        - solo founder ai
+        - ai wrapper
+        - MRR ai
+        - profitable ai project
+        - ai tool launch
+      stackoverflow_tags:
+        - openai-api
+        - langchain
+        - llm
+        - chatgpt-api
+    economic_keywords:
+      buyer_intent:
+        - looking for ai tool
+        - need ai solution
+        - want to automate
+        - hiring ai developer
+        - budget for ai
+        - pay for ai
+        - willing to pay
+      price_wtp:
+        - per month
+        - per year
+        - pricing
+        - subscription
+        - free tier
+        - paid plan
+        - enterprise plan
+      procurement:
+        - rfp
+        - vendor selection
+        - evaluating tools
+        - procurement
+      commercial_support:
+        - commercial license
+        - enterprise support
+        - managed service
+        - professional services
+        - consulting
+      hiring_labor:
+        - hiring ai engineer
+        - looking for developer
+        - freelance ai
+        - contract developer
+      fee_seller:
+        - api cost
+        - token cost
+        - usage fee
+        - compute cost
+        - inference cost
+      competition:
+        - alternative to
+        - competitor
+        - compared to
+        - switching from
+      commercialization:
+        - monetize
+        - revenue model
+        - business model
+        - go to market
+        - launch pricing
+
+  # ─── TARGET 2: Digital Product & Creator Platforms ─────────────────────
+  # LAYER: Where to sell
+  # Watches selling infrastructure — platforms, marketplaces, digital delivery.
+  # Highest-value signals: platform shifts (pricing, API changes, new entrants).
+  - id: creator-platforms
+    name: "Digital Product & Creator Platforms"
+    evidence_level: HYPOTHESIS
+    sources:
+      github_topics:
+        - digital-products
+        - gumroad
+        - course-platform
+        - digital-downloads
+        - stripe
+      github_search_queries:
+        - "gumroad tool"
+        - "lemonsqueezy"
+        - "digital download platform"
+        - "course platform builder"
+        - "membership site tool"
+        - "payhip integration"
+        - "etsy automation"
+        - "print on demand tool"
+        - "selling digital products"
+      keywords:  # hn-collector
+        - gumroad
+        - lemonsqueezy
+        - digital products
+        - creator economy
+        - course creator
+        - selling online
+        - print on demand
+        - Show HN marketplace
+        - bootstrapped marketplace
+        - passive income product
+        - solo founder revenue
+      stackoverflow_tags:
+        - stripe-payments
+        - payment-processing
+        - shopify
+        - webhooks
+    economic_keywords:
+      buyer_intent:
+        - looking for platform
+        - need marketplace
+        - want to sell
+        - buying digital
+        - looking for course platform
+      price_wtp:
+        - pricing
+        - transaction fee
+        - platform fee
+        - revenue share
+        - per sale
+        - monthly plan
+        - payout
+      procurement:
+        - evaluating platforms
+        - comparing platforms
+        - migrating from
+        - switching platform
+      commercial_support:
+        - white label
+        - custom storefront
+        - managed marketplace
+        - reseller
+      hiring_labor:
+        - hiring content creator
+        - freelance designer
+        - looking for seller
+      fee_seller:
+        - seller fee
+        - listing fee
+        - commission
+        - payment processing fee
+        - stripe fee
+      competition:
+        - gumroad vs
+        - alternative to gumroad
+        - alternative to shopify
+        - lemon squeezy vs
+        - compared to
+      commercialization:
+        - monetize content
+        - sell digital products
+        - launch course
+        - creator revenue
+        - passive income
+
+  # ─── TARGET 3: No-Code & Automation for Non-Technical Builders ────────
+  # LAYER: How to build
+  # Watches tools that let non-technical people build and ship products.
+  # SO friction ("how do I make X do Y") maps directly to product gaps.
+  - id: nocode-automation
+    name: "No-Code & Automation for Non-Technical Builders"
+    evidence_level: HYPOTHESIS
+    sources:
+      github_topics:
+        - no-code
+        - low-code
+        - n8n
+        - workflow-automation
+        - airtable
+      github_search_queries:
+        - "no code builder"
+        - "workflow automation"
+        - "api connector"
+        - "form builder no code"
+        - "airtable alternative"
+        - "low code platform"
+        - "automation template"
+        - "no code saas"
+      keywords:  # hn-collector
+        - no-code
+        - low-code
+        - non-technical founder
+        - zapier alternative
+        - make.com
+        - n8n
+        - airtable
+        - without coding
+        - Show HN automation
+        - bootstrapped no-code
+        - solo founder tool
+      stackoverflow_tags:
+        - zapier
+        - n8n
+        - automation
+        - workflow
+        - airtable
+    economic_keywords:
+      buyer_intent:
+        - looking for automation
+        - need no-code tool
+        - want to automate
+        - budget for tool
+        - pay for automation
+      price_wtp:
+        - pricing
+        - free plan
+        - paid plan
+        - per workflow
+        - per task
+        - subscription
+        - usage limit
+      procurement:
+        - evaluating tools
+        - comparing tools
+        - enterprise plan
+        - team plan
+      commercial_support:
+        - managed hosting
+        - enterprise support
+        - custom integration
+        - professional services
+      hiring_labor:
+        - hiring automation expert
+        - freelance zapier
+        - no-code developer
+        - automation consultant
+      fee_seller:
+        - platform fee
+        - usage cost
+        - overage charge
+        - per execution
+      competition:
+        - zapier vs
+        - n8n vs
+        - make vs
+        - alternative to zapier
+        - alternative to make
+        - switching from
+      commercialization:
+        - sell automation
+        - automation agency
+        - template marketplace
+        - workflow template
+        - monetize automation
+
+  # ─── TARGET 4: OSS Sustainability & Funding Gaps ──────────────────────
+  # LAYER: Hypothesis test
+  # Tests whether OSS funding/abandonment patterns accumulate into something
+  # a single-pass search misses. Riskiest target — if it produces nothing
+  # useful by the §9B gate, it's evidence for NARROW or TERMINATE.
+  - id: oss-sustainability
+    name: "OSS Sustainability & Funding Gaps"
+    evidence_level: HYPOTHESIS
+    sources:
+      github_topics:
+        - open-source
+        - funding
+        - sponsorship
+        - bounties
+        - maintainer
+      github_search_queries:
+        - "looking for maintainer"
+        - "seeking sponsorship"
+        - "abandoned repository"
+        - "open source bounty"
+        - "github sponsors"
+        - "bus factor"
+        - "help wanted stale"
+      keywords:  # hn-collector
+        - open source funding
+        - maintainer burnout
+        - open source sustainability
+        - github sponsors
+        - fork because abandoned
+        - bus factor
+        - Show HN open source
+        - open source business model
+      stackoverflow_tags:
+        - open-source
+        - github
+        - licensing
+    economic_keywords:
+      buyer_intent:
+        - looking for maintainer
+        - need open source support
+        - sponsor
+        - funding
+        - donate
+        - grant
+      price_wtp:
+        - sponsorship tier
+        - funding goal
+        - bounty
+        - reward
+        - per month sponsor
+      procurement:
+        - open source procurement
+        - license compliance
+        - vendor support
+        - support contract
+      commercial_support:
+        - commercial support
+        - enterprise edition
+        - paid support
+        - dual license
+        - open core
+      hiring_labor:
+        - hiring maintainer
+        - paid contributor
+        - looking for contributors
+        - contract maintainer
+      fee_seller:
+        - license fee
+        - support fee
+        - hosting cost
+        - infrastructure cost
+      competition:
+        - fork because
+        - alternative to
+        - replacing
+        - migrating away
+      commercialization:
+        - open source business
+        - sustainability model
+        - open source revenue
+        - open core model
+        - freemium open source
+
+# ─── GLOBAL SETTINGS ──────────────────────────────────────────────────────
+settings:
+  max_results_per_query: 30       # per API call, not total
+  days_back_github: 7             # search window for issue/PR queries
+  days_back_hn: 3                 # HN stories age limit (Algolia)
+  days_back_stackoverflow: 30     # widened from 7 — SO volume is very low in 2026
+  min_stars_fork_watch: 50        # ignore forks of tiny repos
+  min_score_hn: 5                 # minimum HN points to include
+
+  # ─── TRENDING / VELOCITY PASS ─────────────────────────────────────────
+  # Each collector ALSO runs a trending pass independent of keyword targets.
+  # This catches rising signals that don't match any target's keywords.
+  trending:
+    enabled: true
+    github:
+      # GitHub has no official trending API. Use search sorted by stars
+      # with created:>YYYY-MM-DD to find repos gaining velocity.
+      sort_by: stars               # sort search results by star count
+      created_within_days: 30      # only repos created in last 30 days
+      min_stars: 100               # minimum stars to surface
+      topics_filter:               # limit trending to these broad areas
+        - ai
+        - saas
+        - no-code
+        - automation
+        - developer-tools
+    hackernews:
+      # HN Algolia: search by points, sorted by date, no keyword filter.
+      # Surfaces the hottest stories in the Radar's observation window.
+      min_points: 50               # only stories with 50+ points
+      max_results: 20              # top 20 trending stories per run
+    stackoverflow:
+      # Stack Exchange API: /questions?order=desc&sort=hot&tagged=...
+      # Surfaces hot questions across the target tags.
+      use_hot_endpoint: true       # hit /questions/hot instead of /questions
+      max_results: 20              # top 20 hot questions per run
