@@ -12,9 +12,9 @@ outside this repo.
 
 | Collector | Source | Schedule (UTC) | Auth |
 |---|---|---|---|
-| `src/collectors/github-collector.ts` | GitHub REST search API | `0 */6 * * *` | repo secret `OSS_RADAR_GITHUB_PAT`, falling back to the automatic `GITHUB_TOKEN` |
-| `src/collectors/hn-collector.ts` | Hacker News Algolia API | `10 */6 * * *` | none |
-| `src/collectors/stackoverflow-collector.ts` | Stack Exchange API v2.3 | `20 */6 * * *` | `STACKEXCHANGE_KEY` repo secret (optional; raises the quota from 300 to 10,000 requests/day) |
+| `src/collectors/github-collector.ts` | GitHub REST search API | `17 */6 * * *` | repo secret `OSS_RADAR_GITHUB_PAT`, falling back to the automatic `GITHUB_TOKEN` |
+| `src/collectors/hn-collector.ts` | Hacker News Algolia API | `37 */6 * * *` | none |
+| `src/collectors/stackoverflow-collector.ts` | Stack Exchange API v2.3 | `47 */6 * * *` | `STACKEXCHANGE_KEY` repo secret (optional; raises the quota from 300 to 10,000 requests/day) |
 
 Each workflow commits its reports back to `main`. All three share one `concurrency` group and
 `pull --rebase` before pushing, so overlapping runs cannot lose a report. Each can also be run
@@ -112,6 +112,12 @@ Never put tokens or keys in repository **Variables** (they are stored in plain t
 
 ## Known limits
 
+- **Scheduled runs are best-effort.** GitHub documents that `schedule` events can be delayed under load
+  (including at the start of every hour) and that queued runs may be dropped. Measured here from
+  2026-09-28 to 2026-10-08: 7–12 of 44 six-hour slots per workflow had no run, and runs that did happen
+  started a median 3.4–4.2 hours after their cron time. The cron minutes (17 / 37 / 47) avoid the start of
+  the hour for that reason. Collection windows are days long, so a late or missed run costs snapshot
+  frequency, not signals; run a workflow by hand from the Actions tab to fill a gap.
 - **Stack Overflow volume is very low.** On 2026-10-07 every watched tag had 7 or fewer questions
   created in the last 30 days, and many had none. Expect a handful of signals per run. The API
   cannot sort or filter by view count, so there is no "high-view" floor.

@@ -2,7 +2,7 @@ name: hn-collector
 
 on:
   schedule:
-    - cron: "10 */6 * * *"
+    - cron: "37 */6 * * *"
   workflow_dispatch:
 
 permissions:
