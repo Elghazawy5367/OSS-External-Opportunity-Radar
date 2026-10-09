@@ -1,0 +1,191 @@
+# RADAR REPORT — hackernews — 2026-10-09 13:00
+
+```
+run_time: 2026-10-09T13:43:04.409Z
+source: hackernews
+collection_status: SUCCESS
+signals_found: 93
+pages_requested: 11
+pages_succeeded: 11
+watch_targets_version: 2.0
+collector_version: 0.1.0
+```
+
+run: 2026-10-09T13:43:04.409Z · keyword signals: 73 · trending: 20 · new: 0 · recurring: 92 · previous hackernews reports: 43
+
+## NEW SIGNALS
+- No signals found in this window
+
+## TRENDING (velocity signals — from trending pass, not keyword match)
+- story | trending | "Margaret Hamilton has died" | 2026-10-07 | points: 2099 · comments: 250 | https://news.ycombinator.com/item?id=49998895
+  context: by muglug · links to: https://news.mit.edu/2026/margaret-hamilton-computing-pioneer-dies-1007
+- story | trending | "Sharing AI progress in mathematics" | 2026-10-06 | points: 1329 · comments: 1512 | https://news.ycombinator.com/item?id=49984923
+  context: by OfficialTurkey · links to: https://openai.com/index/sharing-ai-progress-in-mathematics/
+- story | trending | "Claude Haiku 5.5" | 2026-10-07 | points: 1040 · comments: 485 | https://news.ycombinator.com/item?id=49996437
+  context: by sfkgtbor · links to: https://www.anthropic.com/claude-haiku-5-5
+- story | trending | "Trump administration is suspending Microsoft from a green card program" | 2026-10-08 | points: 890 · comments: 1517 | https://news.ycombinator.com/item?id=50006832
+  context: by alephnerd · links to: https://apnews.com/article/h1b-visa-program-vance-microsoft-e7b3a407f822702b269ee277d21343ea
+- story | trending | "Why isn't the industry freaking out about DeepSeek 4.1 Flash?" | 2026-10-08 | points: 882 · comments: 794 | https://news.ycombinator.com/item?id=50000488
+  context: by jonotime · links to: https://www.dgt.is/blog/2026-10-07-deepseek-freek-out/
+- story | trending | "Whistle: Speech to Text in 16.9 MB" | 2026-10-08 | points: 821 · comments: 166 | https://news.ycombinator.com/item?id=50008427
+  context: by gmays · links to: https://cactuscompute.com/blog/whistle
+- story | trending | "Man discovers his parents' coffee machine used 1TB of data in 10 days" | 2026-10-07 | points: 791 · comments: 480 | https://news.ycombinator.com/item?id=49995495
+  context: by ck2 · links to: https://www.dexerto.com/entertainment/man-discovers-his-parents-coffee-machine-used-1tb-of-data-in-10-days-3416399/
+- story | trending | "GPT‑6 and Intelligent UI for everyone" | 2026-10-07 | points: 749 · comments: 456 | https://news.ycombinator.com/item?id=49996425
+  context: by joshuawright11 · links to: https://openai.com/index/gpt-6-for-everyone/
+- story | trending | "I hired an illustrator to draw my house. Now it's my Home Assistant dashboard" | 2026-10-07 | points: 736 · comments: 153 | https://news.ycombinator.com/item?id=49986882
+  context: by soheilpro · links to: https://antonfrolov.substack.com/p/i-hired-an-illustrator-to-draw-my
+- ask_hn | trending | "Tell HN: I've been paying for a rural Tanzanian's education for 10 years" | 2026-10-08 | points: 717 · comments: 224 | https://news.ycombinator.com/item?id=50006366
+  context: by lukehandcool · Ten years ago I was 19 and traveling through East Africa, and I spent a summer in Ibumila, a village in the Njombe highlands of Tanzania. There's no school in …
+- show_hn | trending | "Show HN: Bigwords.page – Turn any screen into a sign. The URL is the app" | 2026-10-07 | points: 703 · comments: 162 | https://news.ycombinator.com/item?id=49994443
+  context: by SpeakingOfBrad · links to: https://bigwords.page/
+- story | trending | "“Math 2.0” will need to value mathematical progress more holistically" | 2026-10-08 | points: 598 · comments: 636 | https://news.ycombinator.com/item?id=50002008
+  context: by ent101 · links to: https://mathstodon.xyz/@tao/117395269325940185
+- story | trending | "Visa, Mastercard, major banks facing new litigation over 'anticompetitive' fees" | 2026-10-07 | points: 597 · comments: 438 | https://news.ycombinator.com/item?id=49993914
+  context: by DeepLogin · links to: https://www.classaction.org/news/visa-mastercard-major-banks-facing-new-litigation-over-anticompetitive-merchant-credit-card-transaction-fees
+- story | trending | "Shipping JPEG XL in Chrome" | 2026-10-07 | points: 569 · comments: 394 | https://news.ycombinator.com/item?id=49991227
+  context: by AshleysBrain · links to: https://developer.chrome.com/blog/jpeg-xl-in-chrome
+- ask_hn | trending | "Tell HN: GitHub refuses to remove cracked copies of my software after a month" | 2026-10-06 | points: 567 · comments: 343 | https://news.ycombinator.com/item?id=49982498
+  context: by IvanK_net · I am a developer of https://www.photopea.com, a popular photo editor that runs in a web browser. Many people are asking AI models to take the Javascript code f…
+- story | trending | "Yes, and" | 2026-10-08 | points: 545 · comments: 194 | https://news.ycombinator.com/item?id=50003796
+  context: by Michelangelo11 · links to: https://htmx.org/essays/yes-and/
+- story | trending | "Theranos.world" | 2026-10-08 | points: 489 · comments: 174 | https://news.ycombinator.com/item?id=50009295
+  context: by kbyatnal · links to: https://www.theranos.world/
+- story | trending | "Animated ASCII Art for Web Pages" | 2026-10-07 | points: 455 · comments: 75 | https://news.ycombinator.com/item?id=49993857
+  context: by turrini · links to: https://ascii.rest/
+- story | trending | "EmbeddingGemma 2: An open, lightweight multimodal embedding model" | 2026-10-06 | points: 434 · comments: 46 | https://news.ycombinator.com/item?id=49980487
+  context: by ilreb · links to: https://blog.google/innovation-and-ai/technology/developers-tools/embeddinggemma-2/
+- story | trending | "OpenAI annualised revenues $20B less than previously signalled" | 2026-10-08 | points: 408 · comments: 281 | https://news.ycombinator.com/item?id=50008187
+  context: by mfiguiere · links to: https://www.cnbc.com/2026/10/08/open-ai-revenue-nvidia-oracle-coreweave.html
+
+## RECURRING (seen in previous reports of this source)
+- show_hn "Show HN: I built an open-source AWS FinOps auditor using Pandas" · points: 5 · comments: 0 | occurrences: 3 | first seen: 2026-10-09 01:00 | https://news.ycombinator.com/item?id=50014201
+- show_hn "Show HN: Free open source Adobe Lightroom alternative, completely local with AI" · points: 47 · comments: 54 | occurrences: 3 | first seen: 2026-10-09 01:00 | https://news.ycombinator.com/item?id=50012199
+- show_hn "Show HN: Edi Life OS – self-hosted life dashboard with an MCP server for AI" · points: 39 · comments: 15 | occurrences: 3 | first seen: 2026-10-09 01:00 | https://news.ycombinator.com/item?id=50014150
+- show_hn "Show HN: DocFlare AI – Open-source docs chatbot on Cloudflare's free tier" · points: 10 · comments: 0 | occurrences: 3 | first seen: 2026-10-09 01:00 | https://news.ycombinator.com/item?id=50009313
+- story "Open-Source Rust Alternatives to Adobe Apps" · points: 31 · comments: 30 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=50004284
+- show_hn "Show HN: Aura – a self-hosted, multi-user AI agent with per-person graph memory" · points: 6 · comments: 3 | occurrences: 3 | first seen: 2026-10-09 01:00 | https://news.ycombinator.com/item?id=50010250
+- show_hn "Show HN: Kahawai – An open source, modular media system" · points: 6 · comments: 1 | occurrences: 3 | first seen: 2026-10-09 01:00 | https://news.ycombinator.com/item?id=50005089
+- show_hn "Show HN: Engrams, an open source alternative to Devin" · points: 17 · comments: 0 | occurrences: 15 | first seen: 2026-10-01 22:00 | https://news.ycombinator.com/item?id=49923064
+- show_hn "Show HN: Tide, simple self-hosted video meetings. URL is a demo anon deployment" · points: 5 · comments: 5 | occurrences: 3 | first seen: 2026-10-09 01:00 | https://news.ycombinator.com/item?id=50003705
+- show_hn "Show HN: PgNimbus 1.0, an open-source PostgreSQL client that sends no telemetry" · points: 5 · comments: 0 | occurrences: 8 | first seen: 2026-10-07 13:00 | https://news.ycombinator.com/item?id=49990447
+- story "Armada: Encrypted, Open-Source, Discord Alternative (Built on Nostr)" · points: 128 · comments: 18 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49873048
+- show_hn "Show HN: SecretGate – self-hosted anonymous inbox, E2E encrypted in the browser" · points: 7 · comments: 3 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49983573
+- show_hn "Show HN: Neptune, a free and open-source terminal built in Rust" · points: 6 · comments: 1 | occurrences: 8 | first seen: 2026-10-07 13:00 | https://news.ycombinator.com/item?id=49989493
+- story "Jev vs. Kev: open-source Jev alternative tested side by side" · points: 12 · comments: 2 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49847306
+- show_hn "Show HN: Ramen – self-hosted multi-zone MCP server for Kubernetes(Rust & Python)" · points: 5 · comments: 0 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49960371
+- show_hn "Show HN: NanoMuse – An open-source AI agent for your phone and computer" · points: 64 · comments: 22 | occurrences: 8 | first seen: 2026-10-07 13:00 | https://news.ycombinator.com/item?id=49987765
+- show_hn "Show HN: Open Jev Playground – try all the open source alternatives to Jev" · points: 5 · comments: 0 | occurrences: 8 | first seen: 2026-09-24 18:00 | https://news.ycombinator.com/item?id=49820112
+- story "Self-hosted HTTP tunnels with SSH and Nginx" · points: 202 · comments: 45 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49958569
+- show_hn "Show HN: Kahawai – An open source, modular media system" · points: 8 · comments: 4 | occurrences: 10 | first seen: 2026-10-06 18:00 | https://news.ycombinator.com/item?id=49978267
+- show_hn "Show HN: Hibi – An open-source obsidian alternative" · points: 6 · comments: 1 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49782528
+- show_hn "Show HN: Arcadeia – A self-hosted media library with animated video previews" · points: 17 · comments: 6 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49957044
+- show_hn "Show HN: Television – an open source GUI for your agent harness" · points: 8 · comments: 1 | occurrences: 14 | first seen: 2026-10-03 05:00 | https://news.ycombinator.com/item?id=49939817
+- story "VoiceStudio – local open-source ElevenLabs alternative" · points: 6 · comments: 0 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49706572
+- show_hn "Show HN: Aldine. Self-hosted Overleaf alternative. Every paper = 1 Git Repo" · points: 5 · comments: 1 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49865948
+- show_hn "Show HN: Made an open-source Lego AI generator" · points: 167 · comments: 52 | occurrences: 15 | first seen: 2026-10-02 22:00 | https://news.ycombinator.com/item?id=49937916
+- story "Noodle Gallery – Self-hosted photo and video manager forked from Immich" · points: 79 · comments: 59 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49787684
+- show_hn "Show HN: Audionaut – an open-source cross-platform multitrack audio editor" · points: 155 · comments: 47 | occurrences: 15 | first seen: 2026-10-02 12:00 | https://news.ycombinator.com/item?id=49931031
+- story "Bot-free self-hosted analytics with GoatCounter on NixOS" · points: 5 · comments: 0 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49783474
+- show_hn "Show HN: Rhun, an open-source code editor written in assembly" · points: 64 · comments: 51 | occurrences: 15 | first seen: 2026-10-01 22:00 | https://news.ycombinator.com/item?id=49926726
+- story "Self-hosted inference orchestrators compared: LocalAI, exo, GPUStack, vLLM" · points: 13 · comments: 7 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49778078
+- show_hn "Show HN: Open-source model routing for coding agents at Astra-level performance" · points: 123 · comments: 42 | occurrences: 15 | first seen: 2026-09-30 22:00 | https://news.ycombinator.com/item?id=49911500
+- ask_hn "Ask HN: What self-hosted apps do you use daily?" · points: 7 · comments: 19 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49746527
+- show_hn "Show HN: Parrot – Open-Source Smart Meeting Recorder with Co-Pilot on Mac" · points: 39 · comments: 38 | occurrences: 14 | first seen: 2026-09-30 22:00 | https://news.ycombinator.com/item?id=49910328
+- show_hn "Show HN: Friday – Self-hosted persistent memory for AI coding agents (MCP)" · points: 9 · comments: 4 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49731353
+- show_hn "Show HN: Explainroo, Open Source Framework to Make Explainer Videos with Claude" · points: 8 · comments: 2 | occurrences: 11 | first seen: 2026-10-01 22:00 | https://news.ycombinator.com/item?id=49908484
+- show_hn "Show HN: Kival – A self-hosted knowledge system for organizations" · points: 5 · comments: 4 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49724109
+- show_hn "Show HN: Sarala – An open-source WYSIWYG Markdown editor" · points: 24 · comments: 4 | occurrences: 13 | first seen: 2026-09-30 05:00 | https://news.ycombinator.com/item?id=49898958
+- story "Notes on gotchas while migrating 35kb preprompts from Opus to self-hosted Ollama" · points: 140 · comments: 76 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49697014
+- show_hn "Show HN: JBR-001 – An open-source 3D printable desktop robot" · points: 133 · comments: 32 | occurrences: 11 | first seen: 2026-09-30 12:00 | https://news.ycombinator.com/item?id=49890707
+- show_hn "Show HN: Self-hosted company OS, Claude Code and Codex agents in departments" · points: 50 · comments: 15 | occurrences: 4 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49630606
+- ask_hn "Ask HN: Alternatives to NeurIPS, ICLR and ICML" · points: 4 · comments: 0 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49975162
+- ask_hn "Anyone using a Wispr Flow alternative that is non-cloud?" · points: 24 · comments: 19 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49809670
+- ask_hn "Ask HN: Alternatives to Twitter/X?" · points: 9 · comments: 13 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49752806
+- story "Duotone icon library with 1k icons and 250 flags for React with RTL support" · points: 2 · comments: 2 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49734758
+- story "Falcon ASR: TII's 1.6B Speech Model for Arabic and Emirati" · points: 2 · comments: 1 | occurrences: 3 | first seen: 2026-10-09 01:00 | https://news.ycombinator.com/item?id=50011428
+- story "One of the reasons learning Arabic is so hard (صعب)" · points: 2 · comments: 0 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49965422
+- story "We built a generative AI platform in Oman with Arabic and private deployment" · points: 2 · comments: 1 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49925159
+- story "Judeo-iraqi Arabic" · points: 3 · comments: 0 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49669330
+- show_hn "Show HN: Terse, a Claude Code plugin that halves reply length by cutting filler" · points: 24 · comments: 16 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49995809
+- show_hn "Show HN: Rhyven – A marketplace for agents" · points: 2 · comments: 1 | occurrences: 3 | first seen: 2026-10-09 01:00 | https://news.ycombinator.com/item?id=50001374
+- show_hn "Show HN: Use all Codex Plugins inside Pi" · points: 22 · comments: 2 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49929381
+- show_hn "Show HN: Two-panel file manager where everything else is a plugin" · points: 5 · comments: 2 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49891323
+- show_hn "Show HN: Obsidian Plugin for OpenModelica" · points: 4 · comments: 0 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49848452
+- show_hn "Show HN: Karada.ai – CI/CD to turn APIs into MCP servers with 1-click plugins" · points: 9 · comments: 0 | occurrences: 8 | first seen: 2026-09-24 18:00 | https://news.ycombinator.com/item?id=49816680
+- show_hn "Show HN: Memory plugin for coding agents that remembers your coding&chat history" · points: 4 · comments: 0 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49696455
+- show_hn "Show HN: iTerm2 Plugin for Codex/Claude Code" · points: 2 · comments: 0 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49648021
+- story "Nvidia DGX Spark 64GB Launched and Big 128GB GB10 Price Increases" · points: 3 · comments: 0 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49953950
+- ask_hn "Do you support shutting down air travel for 2 months to control Russia plague?" · points: 5 · comments: 7 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49985644
+- story "Subscription Price Increase for Evernote" · points: 3 · comments: 1 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49933243
+- story "Academy of Natural Sciences is shutting down its museum after nearly 200 years" · points: 8 · comments: 0 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49944899
+- ask_hn "Tell HN: OVH price increase for dedicated servers" · points: 11 · comments: 6 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49931175
+- story "Mozilla shutting down Solo AI website creator" · points: 31 · comments: 65 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49934502
+- story "Price Increases for 2GB Raspberry Pi 4 and Raspberry Pi 5" · points: 36 · comments: 34 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49920650
+- story "Notion Mail Is Shutting Down" · points: 3 · comments: 1 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49845403
+- story "Hetzner's Cheap Cloud Tier Is Unavailable After Two Price Increases" · points: 3 · comments: 1 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49638817
+- story "QBZ (Qobuz desktop client for Linux) shutting down" · points: 4 · comments: 0 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49797575
+- story "Youper is shutting down – What kills mental health AI?" · points: 2 · comments: 0 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49749872
+- story "Pulley Is Shutting Down" · points: 3 · comments: 0 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49724313
+- ask_hn "Ask HN: Why is Pulley (cap table) shutting down?" · points: 5 · comments: 1 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49716628
+- ask_hn "Pulley is shutting down and will cease all operations and services on Dec 8th" · points: 11 · comments: 13 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49715984
+- story "Pulley Is Shutting Down" · points: 4 · comments: 1 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49715757
+- story "Pulley is shutting down in December" · points: 21 · comments: 8 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49715530
+- story "The Autistici/Inventati collective is shutting down" · points: 4 · comments: 1 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=49639716
+- story "Margaret Hamilton has died" · points: 2099 · comments: 250 | occurrences: 6 | first seen: 2026-10-08 05:00 | https://news.ycombinator.com/item?id=49998895
+- story "Sharing AI progress in mathematics" · points: 1329 · comments: 1512 | occurrences: 9 | first seen: 2026-10-07 05:00 | https://news.ycombinator.com/item?id=49984923
+- story "Claude Haiku 5.5" · points: 1040 · comments: 485 | occurrences: 7 | first seen: 2026-10-07 23:00 | https://news.ycombinator.com/item?id=49996437
+- story "Trump administration is suspending Microsoft from a green card program" · points: 890 · comments: 1517 | occurrences: 3 | first seen: 2026-10-09 01:00 | https://news.ycombinator.com/item?id=50006832
+- story "Why isn't the industry freaking out about DeepSeek 4.1 Flash?" · points: 882 · comments: 794 | occurrences: 2 | first seen: 2026-10-09 13:00 | https://news.ycombinator.com/item?id=50000488
+- story "Whistle: Speech to Text in 16.9 MB" · points: 821 · comments: 166 | occurrences: 3 | first seen: 2026-10-09 01:00 | https://news.ycombinator.com/item?id=50008427
+- story "Man discovers his parents' coffee machine used 1TB of data in 10 days" · points: 791 · comments: 480 | occurrences: 2 | first seen: 2026-10-09 13:00 | https://news.ycombinator.com/item?id=49995495
+- story "GPT‑6 and Intelligent UI for everyone" · points: 749 · comments: 456 | occurrences: 7 | first seen: 2026-10-07 23:00 | https://news.ycombinator.com/item?id=49996425
+- story "I hired an illustrator to draw my house. Now it's my Home Assistant dashboard" · points: 736 · comments: 153 | occurrences: 2 | first seen: 2026-10-09 13:00 | https://news.ycombinator.com/item?id=49986882
+- ask_hn "Tell HN: I've been paying for a rural Tanzanian's education for 10 years" · points: 717 · comments: 224 | occurrences: 3 | first seen: 2026-10-09 01:00 | https://news.ycombinator.com/item?id=50006366
+- show_hn "Show HN: Bigwords.page – Turn any screen into a sign. The URL is the app" · points: 703 · comments: 162 | occurrences: 6 | first seen: 2026-10-08 05:00 | https://news.ycombinator.com/item?id=49994443
+- story "“Math 2.0” will need to value mathematical progress more holistically" · points: 598 · comments: 636 | occurrences: 5 | first seen: 2026-10-08 12:00 | https://news.ycombinator.com/item?id=50002008
+- story "Visa, Mastercard, major banks facing new litigation over 'anticompetitive' fees" · points: 597 · comments: 438 | occurrences: 7 | first seen: 2026-10-07 23:00 | https://news.ycombinator.com/item?id=49993914
+- story "Shipping JPEG XL in Chrome" · points: 569 · comments: 394 | occurrences: 7 | first seen: 2026-10-07 23:00 | https://news.ycombinator.com/item?id=49991227
+- ask_hn "Tell HN: GitHub refuses to remove cracked copies of my software after a month" · points: 567 · comments: 343 | occurrences: 9 | first seen: 2026-10-07 05:00 | https://news.ycombinator.com/item?id=49982498
+- story "Yes, and" · points: 545 · comments: 194 | occurrences: 2 | first seen: 2026-10-09 13:00 | https://news.ycombinator.com/item?id=50003796
+- story "Theranos.world" · points: 489 · comments: 174 | occurrences: 2 | first seen: 2026-10-09 13:00 | https://news.ycombinator.com/item?id=50009295
+- story "Animated ASCII Art for Web Pages" · points: 455 · comments: 75 | occurrences: 4 | first seen: 2026-10-08 13:00 | https://news.ycombinator.com/item?id=49993857
+- story "EmbeddingGemma 2: An open, lightweight multimodal embedding model" · points: 434 · comments: 46 | occurrences: 7 | first seen: 2026-10-07 13:00 | https://news.ycombinator.com/item?id=49980487
+
+## CHANGES SINCE LAST REPORT
+- baseline: 2026-10-09 13:00
+- new: 2
+  - https://news.ycombinator.com/item?id=49980487
+  - https://news.ycombinator.com/item?id=50008187
+- disappeared: 2
+  - https://news.ycombinator.com/item?id=49977979
+  - https://news.ycombinator.com/item?id=49978116
+- moved: 12
+  - https://news.ycombinator.com/item?id=49998895 | points 2096 → 2099
+  - https://news.ycombinator.com/item?id=50006832 | points 888 → 890 · comments 1512 → 1517
+  - https://news.ycombinator.com/item?id=50000488 | points 868 → 882 · comments 778 → 794
+  - https://news.ycombinator.com/item?id=50008427 | points 816 → 821 · comments 165 → 166
+  - https://news.ycombinator.com/item?id=49995495 | points 776 → 791 · comments 476 → 480
+  - https://news.ycombinator.com/item?id=49986882 | points 725 → 736 · comments 148 → 153
+  - https://news.ycombinator.com/item?id=50006366 | points 716 → 717 · comments 222 → 224
+  - https://news.ycombinator.com/item?id=49982498 | comments 342 → 343
+  - https://news.ycombinator.com/item?id=50003796 | points 534 → 545 · comments 189 → 194
+  - https://news.ycombinator.com/item?id=50009295 | points 484 → 489 · comments 173 → 174
+  - https://news.ycombinator.com/item?id=50014150 | points 38 → 39 · comments 14 → 15
+  - https://news.ycombinator.com/item?id=49987765 | points 63 → 64
+
+## RAW / UNCLASSIFIED
+- config v2.0 · window: stories created after 2026-09-09 · default min points: 5
+- rising-oss [show_hn, title] "open source" p>=5 → 30 of 33
+- rising-oss [story, title] "open source alternative" p>=5 → 8 of 8
+- rising-oss [story, title] "self-hosted" p>=5 → 16 of 16
+- capped: rising-oss 50 -> 40
+- recurring-pain [ask_hn, title] "alternative" p>=2 → 3 of 3
+- last-mile-gaps [story, title] "RTL" p>=2 → 1 of 1
+- last-mile-gaps [story, title] "Arabic" p>=2 → 4 of 4
+- entry-rails [show_hn, title] "plugin" p>=2 → 7 of 7
+- entry-rails [show_hn, title] "marketplace" p>=2 → 1 of 1
+- money-movement [story, title] "price increase" p>=2 → 5 of 5
+- money-movement [story, title] "shutting down" p>=2 → 12 of 12
+- trending (points >= 50, last 3d) → 20 of 157
+- api calls: 11
